@@ -128,62 +128,75 @@ let selA=anios[anios.length-1], selM="T";
 const $=id=>document.getElementById(id);
 const esParcial=(a,m)=>DATA.parcial&&+a===DATA.parcial.y&&+m===DATA.parcial.m;
 const gasDe=(a,m)=>{const g=DATA.gas[a]; return g&&g[m]!==undefined?g[m]:null;};
+const yearsSel=()=>selA==="T"?anios:[selA];
+const mesesDe=a=>Object.keys(DATA.anios[a]);
+const mesesSel=a=>selM==="T"?mesesDe(a):(DATA.anios[a][selM]?[selM]:[]);
 function pills(){
   const fa=$("fAnio"); fa.querySelectorAll("button").forEach(b=>b.remove());
-  anios.forEach(a=>{const b=document.createElement("button");b.className="pill"+(a===selA?" on":"");b.textContent=a;
-    b.onclick=()=>{selA=a; if(selM!=="T"&&!DATA.anios[selA][selM])selM="T"; render();}; fa.appendChild(b);});
+  ["T",...anios].forEach(a=>{const b=document.createElement("button");b.className="pill"+(a===selA?" on":"");b.textContent=(a==="T"?"Todos":a);
+    b.onclick=()=>{selA=a; if(selM!=="T"&&selA!=="T"&&!DATA.anios[selA][selM])selM="T"; render();}; fa.appendChild(b);});
   const fm=$("fMes"); fm.querySelectorAll("button").forEach(b=>b.remove());
-  ["T",...Object.keys(DATA.anios[selA])].forEach(m=>{const b=document.createElement("button");
+  const ms = selA==="T"?[...new Set(anios.flatMap(mesesDe))].sort((x,y)=>+x-+y):mesesDe(selA);
+  ["T",...ms].forEach(m=>{const b=document.createElement("button");
     b.className="pill"+(m===selM?" on":""); b.textContent=(m==="T"?"Todos":MES[+m]);
     b.onclick=()=>{selM=m;render();}; fm.appendChild(b);});
 }
-function agrega(a,ms){
-  const Y=DATA.anios[a]; let v=0,g=0,gas=0,gasOk=true; const sub={};
-  ms.forEach(m=>{ if(!Y[m]) return;
-    v+=Y[m].v; g+=Y[m].g;
-    const gm=gasDe(a,m); if(gm===null) gasOk=false; else gas+=gm;
-    for(const s in Y[m].sub){if(!sub[s])sub[s]=[0,0]; sub[s][0]+=Y[m].sub[s][0]; sub[s][1]+=Y[m].sub[s][1];}});
+function aggMulti(){
+  let v=0,g=0,gas=0,gasOk=true; const sub={};
+  yearsSel().forEach(a=>{const Y=DATA.anios[a];
+    mesesSel(a).forEach(m=>{v+=Y[m].v; g+=Y[m].g; const gm=gasDe(a,m); if(gm===null)gasOk=false; else gas+=gm;
+      for(const s in Y[m].sub){if(!sub[s])sub[s]=[0,0]; sub[s][0]+=Y[m].sub[s][0]; sub[s][1]+=Y[m].sub[s][1];}});});
   return {v,g,gas,gasOk,sub};
 }
 const mvSub=(o,s)=>{const x=o.sub[s]; return x&&x[0]?x[1]/x[0]*100:null;};
+function mvSubAnio(a,s){let v=0,g=0; mesesSel(a).forEach(m=>{const x=DATA.anios[a][m].sub[s]; if(x){v+=x[0];g+=x[1];}}); return v?g/v*100:null;}
 function render(){
   pills();
-  const Y=DATA.anios[selA];
-  const ms = selM==="T" ? Object.keys(Y) : [selM];
-  const sel=agrega(selA,ms);
-  const per = selM==="T" ? selA : MES[+selM]+" "+selA;
+  const todosA=(selA==="T"); const sel=aggMulti();
+  const per = todosA ? (selM==="T"?"todos los años":MES[+selM]+" · todos los años") : (selM==="T"?selA:MES[+selM]+" "+selA);
   $("kbL").textContent="Margen bruto "+per; $("kb").textContent=sel.v?(sel.g/sel.v*100).toFixed(1)+"%":"—";
   $("koL").textContent="Margen operativo "+per;
   $("ko").textContent = sel.gasOk&&sel.v ? ((sel.g-sel.gas)/sel.v*100).toFixed(1)+"%" : "s/gastos";
-  // (a) margen por mes
-  $("tMeses").textContent="Margen bruto por mes · "+selA;
-  const mvs=Object.entries(Y).map(([m,o])=>o.v?o.g/o.v*100:0);
-  const maxm=Math.max(...mvs,1);
+  // (a) margen por año (Todos) o por mes
   const cont=$("meses"); cont.innerHTML="";
-  for(const m in Y){
-    const o=Y[m]; const mv=o.v?o.g/o.v*100:0; const dim=(selM!=="T"&&m!==selM); const p=esParcial(selA,m);
-    const div=document.createElement("div"); div.className="mes"+(dim?" dim":"");
-    div.innerHTML='<span class="n">'+MES[+m]+'</span><div class="track"><div class="fill" style="width:'+
-      Math.round(mv/maxm*100)+'%;'+(p?'opacity:.55':'')+'"></div></div><span class="val">'+mv.toFixed(1)+'%'+(p?' *':'')+'</span>';
-    cont.appendChild(div);
+  if(todosA){
+    $("tMeses").textContent="Margen bruto por año"+(selM==="T"?"":" · "+MES[+selM]);
+    const rows=anios.map(a=>{let v=0,g=0; mesesSel(a).forEach(m=>{v+=DATA.anios[a][m].v;g+=DATA.anios[a][m].g;}); return {lbl:a,mv:v?g/v*100:0,parc:mesesSel(a).some(m=>esParcial(a,m))};});
+    const mx=Math.max(...rows.map(r=>r.mv),1);
+    rows.forEach(r=>{const div=document.createElement("div");div.className="mes";
+      div.innerHTML='<span class="n">'+r.lbl+'</span><div class="track"><div class="fill" style="width:'+Math.round(r.mv/mx*100)+'%;'+(r.parc?'opacity:.55':'')+'"></div></div><span class="val">'+r.mv.toFixed(1)+'%'+(r.parc?' *':'')+'</span>';
+      cont.appendChild(div);});
+    $("nMeses").textContent="";
+  } else {
+    $("tMeses").textContent="Margen bruto por mes · "+selA;
+    const Y=DATA.anios[selA]; const maxm=Math.max(...Object.values(Y).map(o=>o.v?o.g/o.v*100:0),1);
+    for(const m in Y){
+      const o=Y[m]; const mv=o.v?o.g/o.v*100:0; const dim=(selM!=="T"&&m!==selM); const p=esParcial(selA,m);
+      const div=document.createElement("div"); div.className="mes"+(dim?" dim":"");
+      div.innerHTML='<span class="n">'+MES[+m]+'</span><div class="track"><div class="fill" style="width:'+
+        Math.round(mv/maxm*100)+'%;'+(p?'opacity:.55':'')+'"></div></div><span class="val">'+mv.toFixed(1)+'%'+(p?' *':'')+'</span>';
+      cont.appendChild(div);
+    }
+    $("nMeses").textContent=(+selA===DATA.parcial.y?"* "+MES[DATA.parcial.m]+" va parcial (al día "+DATA.parcial.d+").":"");
   }
-  $("nMeses").textContent=(+selA===DATA.parcial.y?"* "+MES[DATA.parcial.m]+" va parcial (al día "+DATA.parcial.d+").":"");
   // (b) margen por subgrupo + tendencia
   $("tSub").textContent="Margen por subgrupo · "+per;
-  const meses=Object.keys(Y);
   const subsC=$("subs"); subsC.innerHTML="";
   Object.entries(sel.sub).sort((a,b)=>b[1][0]-a[1][0]).slice(0,12).forEach(([s,vg])=>{
     const mv=vg[0]?vg[1]/vg[0]*100:0;
     let tHtml="";
-    if(selM==="T"){
-      const con=meses.filter(m=>mvSub(Y[m],s)!==null);
-      if(con.length>=2){
-        const a=mvSub(Y[con[0]],s), b=mvSub(Y[con[con.length-1]],s), d=b-a;
+    if(todosA){
+      const con=anios.filter(a=>mvSubAnio(a,s)!==null);
+      if(con.length>=2){const a=mvSubAnio(con[0],s), b=mvSubAnio(con[con.length-1],s), d=b-a;
         const cls=d>1.5?"t-up":(d<-1.5?"t-dn":"t-fl"); const arr=d>1.5?"▲":(d<-1.5?"▼":"≈");
-        tHtml=a.toFixed(1)+"% → "+b.toFixed(1)+"%<br><span class='tag "+cls+"'>"+arr+" "+(d>0?"+":"")+d.toFixed(1)+"</span>";
-      }
+        tHtml=a.toFixed(1)+"% → "+b.toFixed(1)+"%<br><span class='tag "+cls+"'>"+arr+" "+(d>0?"+":"")+d.toFixed(1)+"</span>";}
+    } else if(selM==="T"){
+      const Y=DATA.anios[selA]; const meses=Object.keys(Y); const con=meses.filter(m=>mvSub(Y[m],s)!==null);
+      if(con.length>=2){const a=mvSub(Y[con[0]],s), b=mvSub(Y[con[con.length-1]],s), d=b-a;
+        const cls=d>1.5?"t-up":(d<-1.5?"t-dn":"t-fl"); const arr=d>1.5?"▲":(d<-1.5?"▼":"≈");
+        tHtml=a.toFixed(1)+"% → "+b.toFixed(1)+"%<br><span class='tag "+cls+"'>"+arr+" "+(d>0?"+":"")+d.toFixed(1)+"</span>";}
     } else {
-      const idx=meses.indexOf(selM); let prev=null;
+      const Y=DATA.anios[selA]; const meses=Object.keys(Y); const idx=meses.indexOf(selM); let prev=null;
       for(let i=idx-1;i>=0;i--){const x=mvSub(Y[meses[i]],s); if(x!==null){prev=x;break;}}
       if(prev!==null){const d=mv-prev; const cls=d>1.5?"t-up":(d<-1.5?"t-dn":"t-fl"); const arr=d>1.5?"▲":(d<-1.5?"▼":"≈");
         tHtml="<span class='tag "+cls+"'>"+arr+" "+(d>0?"+":"")+d.toFixed(1)+" vs mes ant.</span>";}
