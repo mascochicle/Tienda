@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Tablero — Tienda</title>
+</head>
+<body>
+<nav style="max-width:560px;margin:0 auto 14px;display:flex;gap:16px;font-size:13px;font-weight:600;">
+<a href="index.html" style="color:var(--acc);text-decoration:none;">Inicio</a>
+<a href="tablero.html" style="color:var(--acc);text-decoration:none;">Tablero</a>
+<a href="ventas.html" style="color:var(--acc);text-decoration:none;">Ventas</a>
+<a href="compras.html" style="color:var(--acc);text-decoration:none;">Compras</a>
+</nav>
+<style>
+:root{
+  --bg:#f7f6f2; --card:#fffefb; --ink:#211f1a; --sub:#6d675c; --line:#e4e1d8;
+  --acc:#1d6b4f; --acc-soft:#e4efe9; --bar:#2a8563; --bar-soft:#cfe4da;
+  --rojo:#b3372e; --rojo-bg:#f7e7e5; --ambar:#8a5f00; --ambar-bg:#f5ecd8;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#171613; --card:#201e1a; --ink:#efece4; --sub:#a39c8e; --line:#37342d;
+  --acc:#5db895; --acc-soft:#1e3229; --bar:#3f9d77; --bar-soft:#28382f;
+  --rojo:#e2766d; --rojo-bg:#3a221f; --ambar:#d9a83f; --ambar-bg:#352b16;
+}}
+:root[data-theme="dark"]{
+  --bg:#171613; --card:#201e1a; --ink:#efece4; --sub:#a39c8e; --line:#37342d;
+  --acc:#5db895; --acc-soft:#1e3229; --bar:#3f9d77; --bar-soft:#28382f;
+  --rojo:#e2766d; --rojo-bg:#3a221f; --ambar:#d9a83f; --ambar-bg:#352b16;
+}
+:root[data-theme="light"]{
+  --bg:#f7f6f2; --card:#fffefb; --ink:#211f1a; --sub:#6d675c; --line:#e4e1d8;
+  --acc:#1d6b4f; --acc-soft:#e4efe9; --bar:#2a8563; --bar-soft:#cfe4da;
+  --rojo:#b3372e; --rojo-bg:#f7e7e5; --ambar:#8a5f00; --ambar-bg:#f5ecd8;
+}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,"Segoe UI",Roboto,sans-serif;margin:0;padding:20px 12px 48px;line-height:1.45;}
+.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:16px;}
+header h1{font-size:21px;margin:0;font-weight:650;text-wrap:balance;}
+header p{margin:4px 0 0;color:var(--sub);font-size:13px;}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;}
+.kpi .l{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--sub);font-weight:600;}
+.kpi .v{font-size:22px;font-weight:650;margin-top:2px;font-variant-numeric:tabular-nums;}
+.kpi .d{font-size:12px;color:var(--sub);margin-top:2px;}
+.d .up{color:var(--acc);font-weight:600;}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 14px 12px;}
+.card h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);margin:0 0 10px;font-weight:700;}
+.mes{display:grid;grid-template-columns:34px 1fr 84px;align-items:center;gap:8px;font-size:13px;margin-bottom:7px;font-variant-numeric:tabular-nums;}
+.mes .n{color:var(--sub);font-weight:600;}
+.track{background:var(--bar-soft);border-radius:4px;height:16px;overflow:hidden;}
+.fill{background:var(--bar);height:100%;border-radius:4px 0 0 4px;}
+.fill.parcial{opacity:.55;}
+.mes .val{text-align:right;white-space:nowrap;}
+.mes .val small{color:var(--sub);}
+table{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums;}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--sub);font-weight:600;text-align:right;padding:2px 4px 6px;border-bottom:1px solid var(--line);}
+th:first-child{text-align:left;}
+td{padding:5px 4px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;}
+td:first-child{text-align:left;white-space:normal;font-weight:500;}
+tr:last-child td{border-bottom:none;}
+.meter{background:var(--bar-soft);border-radius:6px;height:22px;position:relative;overflow:hidden;margin:6px 0 4px;}
+.meter .f{background:var(--bar);height:100%;border-radius:6px 0 0 6px;}
+.meter .t{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:700;color:var(--ink);}
+.alerta{background:var(--ambar-bg);color:var(--ambar);border-radius:8px;padding:8px 12px;font-size:13px;font-weight:500;}
+.nota{font-size:12.5px;color:var(--sub);margin:8px 2px 0;}
+footer{font-size:11.5px;color:var(--sub);text-align:center;}
+footer a{color:var(--acc);}
+</style>
+<div class="wrap">
+  <header>
+    <h1>📊 Tablero general — Tienda</h1>
+    <p>Corte del lunes 8 de julio 2026 · datos de Venta Fácil</p>
+  </header>
+
+  <div class="kpis">
+    <div class="kpi"><div class="l">Inventario real</div><div class="v">$432,702</div><div class="d"><span class="up">▲ $8,362</span> vs 6-jul</div></div>
+    <div class="kpi"><div class="l">Venta julio (día 8)</div><div class="v">$238,832</div><div class="d">ritmo ≈ $908k/mes</div></div>
+    <div class="kpi"><div class="l">Ganancia julio</div><div class="v">$53,720</div><div class="d">bruta, al día 8</div></div>
+    <div class="kpi"><div class="l">Margen julio</div><div class="v">22.5%</div><div class="d">jun cerró en 23.6%</div></div>
+  </div>
+
+  <div class="card">
+    <h2>Inventario vs óptimo</h2>
+    <div class="meter"><div class="f" style="width:96%"></div><div class="t">$432,702 de $450,000 — dentro del óptimo (96%)</div></div>
+    <p class="nota">Real = sin cerveza $307,649 + cerveza por conteo físico $125,052. Óptimo sano: $420–450k.</p>
+  </div>
+
+  <div class="card">
+    <h2>Venta y margen por mes · 2026</h2>
+    <div class="mes"><span class="n">Ene</span><div class="track"><div class="fill" style="width:92%"></div></div><span class="val">$963k <small>21.8%</small></span></div>
+    <div class="mes"><span class="n">Feb</span><div class="track"><div class="fill" style="width:94%"></div></div><span class="val">$991k <small>22.0%</small></span></div>
+    <div class="mes"><span class="n">Mar</span><div class="track"><div class="fill" style="width:91%"></div></div><span class="val">$960k <small>21.5%</small></span></div>
+    <div class="mes"><span class="n">Abr</span><div class="track"><div class="fill" style="width:92%"></div></div><span class="val">$962k <small>22.2%</small></span></div>
+    <div class="mes"><span class="n">May</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="val">$1,051k <small>22.2%</small></span></div>
+    <div class="mes"><span class="n">Jun</span><div class="track"><div class="fill" style="width:97%"></div></div><span class="val">$1,024k <small>23.6%</small></span></div>
+    <div class="mes"><span class="n">Jul</span><div class="track"><div class="fill parcial" style="width:23%"></div></div><span class="val">$239k <small>al día 8</small></span></div>
+    <p class="nota">Mayo fue el mejor mes en venta; junio el mejor en margen. Julio va a ritmo de ~$908k.</p>
+  </div>
+
+  <div class="card">
+    <h2>Top subgrupos · julio al día 8</h2>
+    <table>
+      <tr><th>Subgrupo</th><th>Venta</th><th>Ganancia</th><th>Margen</th></tr>
+      <tr><td>Cerveza</td><td>$134,130</td><td>$29,008</td><td>21.6%</td></tr>
+      <tr><td>Tés fríos</td><td>$29,522</td><td>$5,429</td><td>18.4%</td></tr>
+      <tr><td>Licores</td><td>$15,077</td><td>$5,326</td><td>35.3%</td></tr>
+      <tr><td>Refrescos</td><td>$12,990</td><td>$2,427</td><td>18.7%</td></tr>
+      <tr><td>Cigarros</td><td>$11,907</td><td>$1,369</td><td>11.5%</td></tr>
+      <tr><td>Botanas</td><td>$9,094</td><td>$2,502</td><td>27.5%</td></tr>
+      <tr><td>Aguas</td><td>$4,584</td><td>$1,053</td><td>23.0%</td></tr>
+      <tr><td>Abarrotes</td><td>$3,196</td><td>$1,042</td><td>32.6%</td></tr>
+      <tr><td>Hielo</td><td>$3,092</td><td>$1,112</td><td>36.0%</td></tr>
+      <tr><td>Vino</td><td>$3,084</td><td>$1,052</td><td>34.1%</td></tr>
+    </table>
+  </div>
+
+  <div class="alerta">⚠️ 5 productos agotados que sí venden — revisa la lista de compras urgentes.</div>
+
+  <footer>Minisuper "X" · se actualiza con cada BAJACH · <a href="compras.html">Ver compras urgentes →</a></footer>
+</div>
+
+</body>
+</html>
