@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Rotación — Tienda</title>
+</head>
+<body>
+<nav style="max-width:560px;margin:0 auto 14px;display:flex;gap:14px;font-size:13px;font-weight:600;flex-wrap:wrap;">
+<a href="index.html" style="color:var(--acc);text-decoration:none;">Inicio</a>
+<a href="tablero.html" style="color:var(--acc);text-decoration:none;">Tablero</a>
+<a href="ventas.html" style="color:var(--acc);text-decoration:none;">Ventas</a>
+<a href="rotacion.html" style="color:var(--acc);text-decoration:none;">Rotación</a>
+<a href="compras.html" style="color:var(--acc);text-decoration:none;">Compras</a>
+</nav>
+<style>
+:root{
+  --bg:#f7f6f2; --card:#fffefb; --ink:#211f1a; --sub:#6d675c; --line:#e4e1d8; --acc:#1d6b4f;
+  --exc:#1d6b4f; --exc-bg:#e4efe9; --bue:#4a6b1d; --bue-bg:#ecf2df; --len:#8a5f00; --len-bg:#f5ecd8; --con:#b3372e; --con-bg:#f7e7e5;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#171613; --card:#201e1a; --ink:#efece4; --sub:#a39c8e; --line:#37342d; --acc:#5db895;
+  --exc:#5db895; --exc-bg:#1e3229; --bue:#a3c46a; --bue-bg:#2a331c; --len:#d9a83f; --len-bg:#352b16; --con:#e2766d; --con-bg:#3a221f;
+}}
+:root[data-theme="dark"]{
+  --bg:#171613; --card:#201e1a; --ink:#efece4; --sub:#a39c8e; --line:#37342d; --acc:#5db895;
+  --exc:#5db895; --exc-bg:#1e3229; --bue:#a3c46a; --bue-bg:#2a331c; --len:#d9a83f; --len-bg:#352b16; --con:#e2766d; --con-bg:#3a221f;
+}
+:root[data-theme="light"]{
+  --bg:#f7f6f2; --card:#fffefb; --ink:#211f1a; --sub:#6d675c; --line:#e4e1d8; --acc:#1d6b4f;
+  --exc:#1d6b4f; --exc-bg:#e4efe9; --bue:#4a6b1d; --bue-bg:#ecf2df; --len:#8a5f00; --len-bg:#f5ecd8; --con:#b3372e; --con-bg:#f7e7e5;
+}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,"Segoe UI",Roboto,sans-serif;margin:0;padding:20px 12px 48px;line-height:1.45;}
+.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:16px;}
+header h1{font-size:21px;margin:0;font-weight:650;}
+header p{margin:4px 0 0;color:var(--sub);font-size:13px;}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;}
+.kpi .l{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--sub);font-weight:600;}
+.kpi .v{font-size:22px;font-weight:650;margin-top:2px;font-variant-numeric:tabular-nums;}
+.kpi .d{font-size:12px;color:var(--sub);margin-top:2px;}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;}
+.card h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);margin:0 0 8px;font-weight:700;}
+table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums;}
+th{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--sub);font-weight:600;text-align:right;padding:2px 4px 6px;border-bottom:1px solid var(--line);}
+th:first-child{text-align:left;}
+td{padding:5px 4px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;}
+td:first-child{text-align:left;white-space:normal;font-weight:500;}
+tr:last-child td{border-bottom:none;}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:99px;}
+.t-exc{background:var(--exc-bg);color:var(--exc);}
+.t-bue{background:var(--bue-bg);color:var(--bue);}
+.t-len{background:var(--len-bg);color:var(--len);}
+.t-con{background:var(--con-bg);color:var(--con);}
+.nota{font-size:12.5px;color:var(--sub);margin:8px 2px 0;}
+footer{font-size:11.5px;color:var(--sub);text-align:center;}
+footer a{color:var(--acc);}
+</style>
+<div class="wrap">
+  <header>
+    <h1>⏱️ Rotación y recuperación</h1>
+    <p>Foto al corte del 2026-07-08 · inventario de hoy vs ritmo de venta de los últimos 6 meses</p>
+  </header>
+  <div class="kpis">
+    <div class="kpi"><div class="l">Inversión en inventario</div><div class="v">$431,975</div><div class="d">a costo, cerveza por conteo físico</div></div>
+    <div class="kpi"><div class="l">Ganancia diaria</div><div class="v">$7,267</div><div class="d">bruta, promedio 6m</div></div>
+    <div class="kpi"><div class="l">La tienda se paga cada</div><div class="v">59 días</div><div class="d">ganancia acumulada = inversión</div></div>
+    <div class="kpi"><div class="l">GMROI tienda</div><div class="v">$6.1</div><div class="d">$ de ganancia al año por $1 invertido</div></div>
+  </div>
+  <div class="card">
+    <h2>Por subgrupo · del que se recupera más rápido al más lento</h2>
+    <table>
+      <tr><th>Subgrupo</th><th>Inversión</th><th>Se vende en</th><th>Se paga en</th><th>GMROI</th></tr>
+<tr><td>Tes frios</td><td>$9,698</td><td>4 d</td><td>14 d</td><td><span class="tag t-exc">26.7 · excelente</span></td></tr>
+<tr><td>Hielo</td><td>$1,800</td><td>10 d</td><td>17 d</td><td><span class="tag t-exc">21.2 · excelente</span></td></tr>
+<tr><td>Cerveza</td><td>$125,052</td><td>8 d</td><td>32 d</td><td><span class="tag t-exc">11.4 · excelente</span></td></tr>
+<tr><td>Botanas</td><td>$19,087</td><td>23 d</td><td>58 d</td><td><span class="tag t-bue">6.3 · bueno</span></td></tr>
+<tr><td>Mezclas</td><td>$5,336</td><td>29 d</td><td>63 d</td><td><span class="tag t-bue">5.8 · bueno</span></td></tr>
+<tr><td>Jugos y aguas frescas</td><td>$3,666</td><td>24 d</td><td>75 d</td><td><span class="tag t-bue">4.9 · bueno</span></td></tr>
+<tr><td>Refrescos</td><td>$24,181</td><td>18 d</td><td>78 d</td><td><span class="tag t-bue">4.7 · bueno</span></td></tr>
+<tr><td>Aguas</td><td>$11,886</td><td>24 d</td><td>85 d</td><td><span class="tag t-bue">4.3 · bueno</span></td></tr>
+<tr><td>Confites</td><td>$4,286</td><td>46 d</td><td>87 d</td><td><span class="tag t-bue">4.2 · bueno</span></td></tr>
+<tr><td>Pan-Galletas</td><td>$8,570</td><td>34 d</td><td>92 d</td><td><span class="tag t-len">4.0 · lento</span></td></tr>
+<tr><td>Lacteos y yogures</td><td>$834</td><td>34 d</td><td>93 d</td><td><span class="tag t-len">3.9 · lento</span></td></tr>
+<tr><td>Quesos y embutidos</td><td>$1,773</td><td>33 d</td><td>95 d</td><td><span class="tag t-len">3.8 · lento</span></td></tr>
+<tr><td>Abarrotes</td><td>$13,776</td><td>51 d</td><td>112 d</td><td><span class="tag t-len">3.3 · lento</span></td></tr>
+<tr><td>Cigarros</td><td>$23,799</td><td>15 d</td><td>114 d</td><td><span class="tag t-len">3.2 · lento</span></td></tr>
+<tr><td>Energeticas y deportivas</td><td>$4,374</td><td>40 d</td><td>130 d</td><td><span class="tag t-len">2.8 · lento</span></td></tr>
+<tr><td>Licor destilado</td><td>$125,275</td><td>87 d</td><td>154 d</td><td><span class="tag t-len">2.4 · lento</span></td></tr>
+<tr><td>Abarrotes no-comestibles</td><td>$9,126</td><td>60 d</td><td>156 d</td><td><span class="tag t-len">2.3 · lento</span></td></tr>
+<tr><td>Vino</td><td>$27,180</td><td>89 d</td><td>168 d</td><td><span class="tag t-len">2.2 · lento</span></td></tr>
+<tr><td>Desechables</td><td>$850</td><td>84 d</td><td>169 d</td><td><span class="tag t-len">2.2 · lento</span></td></tr>
+<tr><td>Otros</td><td>$721</td><td>106 d</td><td>268 d</td><td><span class="tag t-con">1.4 · congelado</span></td></tr>
+<tr><td>Ferreteria</td><td>$5,790</td><td>1.6 años</td><td>1.1 años</td><td><span class="tag t-con">0.9 · congelado</span></td></tr>
+<tr><td>Farmacia</td><td>$4,917</td><td>1.1 años</td><td>2.7 años</td><td><span class="tag t-con">0.4 · congelado</span></td></tr>
+
+    </table>
+    <p class="nota">«Se vende en» = días para que el stock actual pase por caja. «Se paga en» = días para que la pura ganancia iguale lo invertido (reinvirtiendo). GMROI: ≥8 excelente · 4-8 bueno · 2-4 lento · &lt;2 congelado.</p>
+  </div>
+  <footer>Minisuper "X" · se actualiza con cada BAJACH · <a href="tablero.html">Tablero general</a> · <a href="ventas.html">Ventas por subgrupo</a></footer>
+</div>
+
+</body>
+</html>
