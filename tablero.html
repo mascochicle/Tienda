@@ -156,12 +156,17 @@ function render(){
   $("thAA").textContent="vs "+aaPrev;
   $("tSub").textContent="Top subgrupos · "+per+(parcTxt?" ("+parcTxt+")":"");
   const tb=$("tabSub"); tb.querySelectorAll("tr:not(:first-child)").forEach(r=>r.remove());
-  const prevAgg = hayPrev ? agrega(aaPrev, ms.filter(m=>DATA.anios[aaPrev][m])) : null;
+  // crecimiento: solo MESES COMPLETOS en ambos años (si la seleccion es solo el mes parcial, se compara contra el mes completo anterior y se marca *)
+  let msCmp = ms.filter(m=>!esParcial(selA,m)); let cmpParc=false;
+  if(!msCmp.length){ msCmp=ms; cmpParc=true; }
+  const curCmp = hayPrev ? agrega(selA, msCmp) : null;
+  const prevAgg = hayPrev ? agrega(aaPrev, msCmp.filter(m=>DATA.anios[aaPrev][m])) : null;
   Object.entries(sel.sub).sort((a,b)=>b[1][0]-a[1][0]).slice(0,10).forEach(([s,vg])=>{
     const pv = prevAgg&&prevAgg.sub[s]?prevAgg.sub[s][0]:0;
+    const cv = curCmp&&curCmp.sub[s]?curCmp.sub[s][0]:0;
     let aa="—";
-    if(hayPrev&&pv>0){const d=(vg[0]-pv)/pv*100; const cls=d>2?"t-up":(d<-2?"t-dn":"t-fl"); const arr=d>2?"▲":(d<-2?"▼":"≈");
-      aa='<span class="tag '+cls+'">'+arr+" "+(d>0?"+":"")+d.toFixed(0)+"%"+(esParc?"*":"")+'</span>';}
+    if(hayPrev&&pv>0&&cv>0){const d=(cv-pv)/pv*100; const cls=d>2?"t-up":(d<-2?"t-dn":"t-fl"); const arr=d>2?"▲":(d<-2?"▼":"≈");
+      aa='<span class="tag '+cls+'">'+arr+" "+(d>0?"+":"")+d.toFixed(0)+"%"+(cmpParc?"*":"")+'</span>';}
     const tr=document.createElement("tr");
     tr.innerHTML="<td>"+s+"</td><td>"+fmtk(vg[0])+"</td><td>"+(sel.v?(vg[0]/sel.v*100).toFixed(1):0)+"%</td><td>"+
       fmtk(vg[1])+"</td><td>"+(sel.g?(vg[1]/sel.g*100).toFixed(1):0)+"%</td><td>"+aa+"</td>";
