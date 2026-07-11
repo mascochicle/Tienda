@@ -38,6 +38,9 @@ a.tarjeta{display:block;background:var(--card);border:1px solid var(--line);bord
 a.tarjeta:hover{border-color:var(--acc);}
 a.tarjeta b{color:var(--acc);font-size:15px;}
 a.tarjeta span{display:block;font-size:13px;color:var(--sub);margin-top:3px;}
+a.privada{border-style:dashed;}
+a.privada b::after{content:" · privada 🔒";font-size:11px;color:var(--sub);font-weight:600;text-transform:none;letter-spacing:0;}
+.divisor{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--sub);font-weight:700;margin:4px 2px -4px;}
 footer{font-size:11.5px;color:var(--sub);text-align:center;}
 </style>
 <div class="wrap">
@@ -60,6 +63,9 @@ footer{font-size:11.5px;color:var(--sub);text-align:center;}
   <a class="tarjeta" href="gastos.html"><b>💸 Gastos operativos</b><span>En qué se va el dinero: gasto sobre venta con semáforo, focos rojos automáticos y qué subió contra el año pasado.</span></a>
   <a class="tarjeta" href="rotacion.html"><b>⏱️ Rotación y recuperación</b><span>Qué tan rápido trabaja el dinero invertido en cada familia y dónde está congelado.</span></a>
   <a class="tarjeta" href="compras.html"><b>🛒 Compras urgentes</b><span>Lo que está por agotarse y hay que resurtir (uso operativo de la tienda).</span></a>
+
+  <div class="divisor">Herramienta del dueño</div>
+  <a class="tarjeta privada" href="https://claude.ai/code/artifact/987b5434-3da5-4045-bcf7-352feba66595" target="_blank" rel="noopener noreferrer"><b>🧮 Calculadora de compra</b><span>¿En cuánto se recupera una compra por descuento? Requiere iniciar sesión con la cuenta del dueño; los socios no ven costos.</span></a>
 
   <footer>Página informativa para socios · datos del sistema de punto de venta · cifras a precio de venta salvo indicación</footer>
 </div>
