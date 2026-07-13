@@ -29,62 +29,64 @@ header h1{font-size:21px;margin:0;font-weight:650;} header p{margin:4px 0 0;colo
 .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 14px 10px;}
 .card h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);margin:0 0 8px;font-weight:700;}
 table{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums;}
-th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--sub);font-weight:600;text-align:right;padding:2px 4px 6px;border-bottom:1px solid var(--line);} th:first-child{text-align:left;}
-td{padding:5px 4px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;} td:first-child{text-align:left;white-space:normal;font-weight:500;} tr:last-child td{border-bottom:none;}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--sub);font-weight:600;text-align:right;padding:2px 4px 6px;border-bottom:1px solid var(--line);} th:first-child,th:nth-child(2){text-align:left;}
+td{padding:5px 4px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;} td:nth-child(2){text-align:left;white-space:normal;font-weight:500;} tr:last-child td{border-bottom:none;}
+td.cod{text-align:left;font-size:10.5px;color:var(--sub);font-weight:400;font-variant-numeric:tabular-nums;}
 .pill{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.03em;padding:1px 7px;border-radius:99px;}
 .p-rojo{background:var(--rojo-bg);color:var(--rojo);} .p-ambar{background:var(--ambar-bg);color:var(--ambar);}
+.sub2{font-size:11.5px;color:var(--sub);margin:-2px 0 9px;line-height:1.35;}
 .nota{font-size:12.5px;color:var(--sub);margin:8px 2px 0;}
 footer{font-size:11.5px;color:var(--sub);text-align:center;}
 </style>
 <div class="wrap">
   <header><h1>🛒 Compras urgentes — Tienda</h1><p>Corte del 12 de julio 2026 · base de Venta Fácil · vende/mes = promedio 3 meses</p></header>
-<div class="card"><h2>🍺 Cerveza — pedir ya</h2><table><tr><th>Producto</th><th>Hay</th><th>Vende/mes</th><th>Estado</th></tr>
-<tr><td>Six Ultra Amstel 355Ml</td><td>-117</td><td>83</td><td><span class="pill p-rojo">agotado</span></td></tr>
-<tr><td>Six Pacifico Suave 355Ml</td><td>-99</td><td>87</td><td><span class="pill p-rojo">agotado</span></td></tr>
-<tr><td>Six Michelob Lata 355</td><td>-230</td><td>208</td><td><span class="pill p-rojo">agotado</span></td></tr>
-<tr><td>SIX PACIFICO CLARA 355MLÿ</td><td>-60</td><td>63</td><td><span class="pill p-rojo">agotado</span></td></tr>
-<tr><td>Six Tkt Light 355Ml</td><td>-351</td><td>386</td><td><span class="pill p-rojo">agotado</span></td></tr>
-<tr><td>Six Barrilito</td><td>-109</td><td>123</td><td><span class="pill p-rojo">agotado</span></td></tr>
-<tr><td>Six Modelo Negra 355</td><td>-46</td><td>55</td><td><span class="pill p-rojo">agotado</span></td></tr>
-<tr><td>Six Modelo Lata 355</td><td>-599</td><td>792</td><td><span class="pill p-rojo">agotado</span></td></tr>
-<tr><td>Six Victoria Lata 355Ml</td><td>-31</td><td>42</td><td><span class="pill p-rojo">agotado</span></td></tr>
-<tr><td>Six Corona Lata 355</td><td>-113</td><td>157</td><td><span class="pill p-rojo">agotado</span></td></tr>
-<tr><td>Six Xx Laguer Lata 355 Ml</td><td>-416</td><td>592</td><td><span class="pill p-rojo">agotado</span></td></tr>
-<tr><td>Six Superior 355 Ml</td><td>-120</td><td>191</td><td><span class="pill p-rojo">agotado</span></td></tr>
-<tr><td>2 Misil Xx Laguer</td><td>-48</td><td>95</td><td><span class="pill p-rojo">agotado</span></td></tr>
-<tr><td>Six Tkt Original De 355Ml</td><td>-19</td><td>49</td><td><span class="pill p-rojo">agotado</span></td></tr>
+<div class="card"><h2>🍺 Cerveza — pedir ya</h2><p class="sub2">Existencia estimada = tu <b>conteo físico del 6/7/2026</b> + entradas − ventas registradas desde entonces (piezas reales). «Vende/mes» ya incluye lo vendido por six y presentaciones (×6, etc.).</p><table><tr><th>Código</th><th>Producto</th><th>Hay (pz)</th><th>Vende/mes</th><th>Estado</th></tr>
+<tr><td class="cod">75003821</td><td>Lata Xx Lager 355 Ml.</td><td>23</td><td>3711</td><td><span class="pill p-rojo">~1 día</span></td></tr>
+<tr><td class="cod">049928742</td><td>Lata Superior 355Ml</td><td>64</td><td>1384</td><td><span class="pill p-rojo">~1 día</span></td></tr>
+<tr><td class="cod">064194504</td><td>Lata Michelob 355</td><td>18</td><td>1320</td><td><span class="pill p-rojo">~1 día</span></td></tr>
+<tr><td class="cod">064190711</td><td>Lata Corona Extra 355</td><td>3</td><td>976</td><td><span class="pill p-rojo">~1 día</span></td></tr>
+<tr><td class="cod">049912215</td><td>Misil Xx Lagger 1.2 L</td><td>0</td><td>774</td><td><span class="pill p-rojo">agotado</span></td></tr>
+<tr><td class="cod">75030575</td><td>1/2 Nr Barril Corona 325</td><td>83</td><td>765</td><td><span class="pill p-rojo">~3 días</span></td></tr>
+<tr><td class="cod">064199387</td><td>Lata Pacifico Suave 355Ml</td><td>12</td><td>565</td><td><span class="pill p-rojo">~1 día</span></td></tr>
+<tr><td class="cod">024416138</td><td>Lata Ultra Amstel 355</td><td>16</td><td>539</td><td><span class="pill p-rojo">~1 día</span></td></tr>
+<tr><td class="cod">064199615</td><td>Lata Pacifico Clara 355Ml</td><td>48</td><td>408</td><td><span class="pill p-ambar">4 días</span></td></tr>
+<tr><td class="cod">044233753</td><td>Lata Modelo Negra 0% 355Ml</td><td>0</td><td>345</td><td><span class="pill p-rojo">agotado</span></td></tr>
+<tr><td class="cod">064198519</td><td>Mega Modelo Especial Lt</td><td>25</td><td>288</td><td><span class="pill p-rojo">~3 días</span></td></tr>
+<tr><td class="cod">049912284</td><td>Laton Xx Laguer 473 Ml</td><td>0</td><td>240</td><td><span class="pill p-rojo">agotado</span></td></tr>
+<tr><td class="cod">061679202</td><td>Misil Tkt Light 1.2 L</td><td>22</td><td>235</td><td><span class="pill p-rojo">~3 días</span></td></tr>
+<tr><td class="cod">032272153</td><td>1/2 Xx Lager Ultra</td><td>0</td><td>160</td><td><span class="pill p-rojo">agotado</span></td></tr>
 </table></div>
-<div class="card"><h2>🧊 Neveras y hielo — pedir ya</h2><table><tr><th>Producto</th><th>Hay</th><th>Vende/mes</th><th>Estado</th></tr>
-<tr><td>Coca Cola 500Ml</td><td>-1</td><td>39</td><td><span class="pill p-rojo">agotado</span></td></tr>
-<tr><td>Coca Cola 1.35Ml</td><td>4</td><td>131</td><td><span class="pill p-rojo">~1 día</span></td></tr>
-<tr><td>The Nando 4L</td><td>83</td><td>904</td><td><span class="pill p-rojo">~3 días</span></td></tr>
-<tr><td>Agua Crist. Bot. 20Lt.</td><td>10</td><td>57</td><td><span class="pill p-ambar">5 días</span></td></tr>
-<tr><td>Cocacola N/R 1.75 M.L.</td><td>6</td><td>32</td><td><span class="pill p-ambar">6 días</span></td></tr>
-<tr><td>Pepsi Black 1.5 Lt</td><td>7</td><td>35</td><td><span class="pill p-ambar">6 días</span></td></tr>
-<tr><td>The Nando Lt</td><td>121</td><td>503</td><td><span class="pill p-ambar">7 días</span></td></tr>
-<tr><td>Cocacola Sin Azucar 2.5</td><td>16</td><td>60</td><td><span class="pill p-ambar">8 días</span></td></tr>
-<tr><td>Pepsi 2.5 Lt Rt</td><td>15</td><td>54</td><td><span class="pill p-ambar">8 días</span></td></tr>
-<tr><td>Pepsi 3 Lt</td><td>10</td><td>36</td><td><span class="pill p-ambar">9 días</span></td></tr>
-<tr><td>COCA COLA 2.5 Lt N/R</td><td>37</td><td>114</td><td><span class="pill p-ambar">10 días</span></td></tr>
-<tr><td>The Nando 500 Ml</td><td>90</td><td>267</td><td><span class="pill p-ambar">10 días</span></td></tr>
-<tr><td>Pepsi 1.5 Lt.</td><td>15</td><td>44</td><td><span class="pill p-ambar">10 días</span></td></tr>
-<tr><td>Coca Cola 600Ml</td><td>58</td><td>160</td><td><span class="pill p-ambar">11 días</span></td></tr>
+<div class="card"><h2>🧊 Neveras y hielo — pedir ya</h2><table><tr><th>Código</th><th>Producto</th><th>Hay</th><th>Vende/mes</th><th>Estado</th></tr>
+<tr><td class="cod">75009809</td><td>Coca Cola 500Ml</td><td>0</td><td>39</td><td><span class="pill p-rojo">agotado</span></td></tr>
+<tr><td class="cod">055371655</td><td>Coca Cola 1.35Ml</td><td>4</td><td>131</td><td><span class="pill p-rojo">~1 día</span></td></tr>
+<tr><td class="cod">0217</td><td>The Nando 4L</td><td>83</td><td>904</td><td><span class="pill p-rojo">~3 días</span></td></tr>
+<tr><td class="cod">0200</td><td>Agua Crist. Bot. 20Lt.</td><td>10</td><td>57</td><td><span class="pill p-ambar">5 días</span></td></tr>
+<tr><td class="cod">055313532</td><td>Cocacola N/R 1.75 M.L.</td><td>6</td><td>32</td><td><span class="pill p-ambar">6 días</span></td></tr>
+<tr><td class="cod">022013069</td><td>Pepsi Black 1.5 Lt</td><td>7</td><td>35</td><td><span class="pill p-ambar">6 días</span></td></tr>
+<tr><td class="cod">0215</td><td>The Nando Lt</td><td>121</td><td>503</td><td><span class="pill p-ambar">7 días</span></td></tr>
+<tr><td class="cod">055321681</td><td>Cocacola Sin Azucar 2.5</td><td>16</td><td>60</td><td><span class="pill p-ambar">8 días</span></td></tr>
+<tr><td class="cod">031305629</td><td>Pepsi 2.5 Lt Rt</td><td>15</td><td>54</td><td><span class="pill p-ambar">8 días</span></td></tr>
+<tr><td class="cod">031310098</td><td>Pepsi 3 Lt</td><td>10</td><td>36</td><td><span class="pill p-ambar">9 días</span></td></tr>
+<tr><td class="cod">055305247</td><td>COCA COLA 2.5 Lt N/R</td><td>37</td><td>114</td><td><span class="pill p-ambar">10 días</span></td></tr>
+<tr><td class="cod">0214</td><td>The Nando 500 Ml</td><td>90</td><td>267</td><td><span class="pill p-ambar">10 días</span></td></tr>
+<tr><td class="cod">031311682</td><td>Pepsi 1.5 Lt.</td><td>15</td><td>44</td><td><span class="pill p-ambar">10 días</span></td></tr>
+<tr><td class="cod">75007614</td><td>Coca Cola 600Ml</td><td>58</td><td>160</td><td><span class="pill p-ambar">11 días</span></td></tr>
 </table></div>
-<div class="card"><h2>🥃 Licores — pedir ya</h2><table><tr><th>Producto</th><th>Hay</th><th>Vende/mes</th><th>Estado</th></tr>
-<tr><td>Caribe Cooler Ultra Drz</td><td>-1</td><td>22</td><td><span class="pill p-rojo">agotado</span></td></tr>
-<tr><td>Canoral Blanco 1Lt</td><td>10</td><td>145</td><td><span class="pill p-rojo">~2 días</span></td></tr>
-<tr><td>Canoral Blanco De 500Ml</td><td>13</td><td>156</td><td><span class="pill p-rojo">~3 días</span></td></tr>
-<tr><td>Lata Bacardi Coca Cola 355Ml</td><td>5</td><td>27</td><td><span class="pill p-ambar">6 días</span></td></tr>
-<tr><td>Skyy Citrus 275</td><td>15</td><td>63</td><td><span class="pill p-ambar">7 días</span></td></tr>
-<tr><td>Whisky Red Label Bot</td><td>4</td><td>14</td><td><span class="pill p-ambar">8 días</span></td></tr>
-<tr><td>Vino T.Reserv. Cyt Merlot 750Ml</td><td>3</td><td>8</td><td><span class="pill p-ambar">12 días</span></td></tr>
-<tr><td>Whysky Duglass 200Ml</td><td>3</td><td>8</td><td><span class="pill p-ambar">12 días</span></td></tr>
+<div class="card"><h2>🥃 Licores — pedir ya</h2><table><tr><th>Código</th><th>Producto</th><th>Hay</th><th>Vende/mes</th><th>Estado</th></tr>
+<tr><td class="cod">032485412</td><td>Caribe Cooler Ultra Drz</td><td>0</td><td>22</td><td><span class="pill p-rojo">agotado</span></td></tr>
+<tr><td class="cod">020812521</td><td>Canoral Blanco 1Lt</td><td>10</td><td>145</td><td><span class="pill p-rojo">~2 días</span></td></tr>
+<tr><td class="cod">020812514</td><td>Canoral Blanco De 500Ml</td><td>13</td><td>156</td><td><span class="pill p-rojo">~3 días</span></td></tr>
+<tr><td class="cod">055387854</td><td>Lata Bacardi Coca Cola 355Ml</td><td>5</td><td>27</td><td><span class="pill p-ambar">6 días</span></td></tr>
+<tr><td class="cod">607696012</td><td>Skyy Citrus 275</td><td>15</td><td>63</td><td><span class="pill p-ambar">7 días</span></td></tr>
+<tr><td class="cod">267014203</td><td>Whisky Red Label Bot</td><td>4</td><td>14</td><td><span class="pill p-ambar">8 días</span></td></tr>
+<tr><td class="cod">320148397</td><td>Vino T.Reserv. Cyt Merlot 750M</td><td>3</td><td>8</td><td><span class="pill p-ambar">12 días</span></td></tr>
+<tr><td class="cod">247081512</td><td>Whysky Duglass 200Ml</td><td>3</td><td>8</td><td><span class="pill p-ambar">12 días</span></td></tr>
 </table></div>
-<div class="card"><h2>🚬 Cigarros — pedir ya</h2><table><tr><th>Producto</th><th>Hay</th><th>Vende/mes</th><th>Estado</th></tr>
-<tr><td>Pall Mall Alaska 20</td><td>43</td><td>212</td><td><span class="pill p-ambar">6 días</span></td></tr>
+<div class="card"><h2>🚬 Cigarros — pedir ya</h2><table><tr><th>Código</th><th>Producto</th><th>Hay</th><th>Vende/mes</th><th>Estado</th></tr>
+<tr><td class="cod">75071295</td><td>Pall Mall Alaska 20</td><td>43</td><td>212</td><td><span class="pill p-ambar">6 días</span></td></tr>
 </table></div>
 
-  <p class="nota">«Hay» = existencia actual. «Estado» = a cuántos días se agota al ritmo de venta. Rojo = pedir hoy, ámbar = pedir pronto.</p>
+  <p class="nota">«Hay» = existencia actual (la cerveza usa tu conteo físico real, no la del sistema que está inflada por el lío de piezas vs six). «Estado» = a cuántos días se agota al ritmo de venta. Rojo = pedir hoy, ámbar = pedir pronto.</p>
   <footer>Minisuper "X" · se actualiza con cada BAJACH</footer>
 </div>
 
