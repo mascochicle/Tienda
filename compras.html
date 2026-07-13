@@ -40,7 +40,7 @@ tr.cods td{font-size:11px;color:var(--sub);white-space:normal;text-align:left;fo
 footer{font-size:11.5px;color:var(--sub);text-align:center;}
 </style>
 <div class="wrap">
-  <header><h1>🛒 Compras urgentes — Tienda</h1><p>Corte del 12 de julio 2026 · base de Venta Fácil · vende/mes = promedio 3 meses</p></header>
+  <header><h1>🛒 Compras urgentes — Tienda</h1><p>Corte del 12 de julio 2026 · base de Venta Fácil · vende/mes = ponderado (lo reciente pesa más)</p></header>
 <div class="card"><h2>🍺 Cerveza — pedir ya</h2><p class="sub2">Existencia estimada = tu <b>conteo físico del 6/7/2026</b> + entradas − ventas registradas desde entonces (piezas reales). «Vende/mes» ya incluye lo vendido por six y presentaciones (×6, etc.).</p><table><tr><th>Producto</th><th>Hay (pz)</th><th>Vende/mes</th><th>Estado</th></tr>
 <tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Lata Xx Lager 355 Ml.</td><td>23</td><td>3711</td><td><span class="pill p-rojo">~1 día</span></td></tr>
 <tr class="cods" style="display:none"><td colspan="4">código 75003821 · pieza base contada físicamente</td></tr>
@@ -72,88 +72,90 @@ footer{font-size:11.5px;color:var(--sub);text-align:center;}
 <tr class="cods" style="display:none"><td colspan="4">código 032272153 · pieza base contada físicamente</td></tr>
 </table></div>
 <div class="card"><h2>🧊 Neveras y hielo — pedir ya</h2><table><tr><th>Producto</th><th>Hay</th><th>Vende/mes</th><th>Estado</th></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Coca Cola 500Ml</td><td>0</td><td>39</td><td><span class="pill p-rojo">agotado</span></td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Coca Cola 500Ml</td><td>0</td><td>35</td><td><span class="pill p-rojo">agotado</span></td></tr>
 <tr class="cods" style="display:none"><td colspan="4">código → 75009809: -1</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Coca Cola 1.35Ml</td><td>4</td><td>131</td><td><span class="pill p-rojo">~1 día</span></td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Coca Cola 1.35Ml</td><td>4</td><td>134</td><td><span class="pill p-rojo">~1 día</span></td></tr>
 <tr class="cods" style="display:none"><td colspan="4">código → 055371655: 4</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> The Nando 4L</td><td>83</td><td>904</td><td><span class="pill p-rojo">~3 días</span></td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> The Nando 4L</td><td>83</td><td>924</td><td><span class="pill p-rojo">~3 días</span></td></tr>
 <tr class="cods" style="display:none"><td colspan="4">código → 0217: 83</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Agua Crist. Bot. 20Lt.</td><td>10</td><td>57</td><td><span class="pill p-ambar">5 días</span></td></tr>
-<tr class="cods" style="display:none"><td colspan="4">código → 0200: 10</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Cocacola N/R 1.75 M.L.</td><td>6</td><td>32</td><td><span class="pill p-ambar">6 días</span></td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Cristal Mineralizada 2.5 Lts.</td><td>4</td><td>33</td><td><span class="pill p-ambar">4 días</span></td></tr>
+<tr class="cods" style="display:none"><td colspan="4">código → 055357420: 4</td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Cocacola N/R 1.75 M.L.</td><td>6</td><td>31</td><td><span class="pill p-ambar">6 días</span></td></tr>
 <tr class="cods" style="display:none"><td colspan="4">código → 055313532: 6</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Pepsi Black 1.5 Lt</td><td>7</td><td>35</td><td><span class="pill p-ambar">6 días</span></td></tr>
-<tr class="cods" style="display:none"><td colspan="4">código → 022013069: 7</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> The Nando Lt</td><td>121</td><td>503</td><td><span class="pill p-ambar">7 días</span></td></tr>
-<tr class="cods" style="display:none"><td colspan="4">código → 0215: 121</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Cocacola Sin Azucar 2.5</td><td>16</td><td>60</td><td><span class="pill p-ambar">8 días</span></td></tr>
-<tr class="cods" style="display:none"><td colspan="4">código → 055321681: 16</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Pepsi 2.5 Lt Rt</td><td>15</td><td>54</td><td><span class="pill p-ambar">8 días</span></td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Coca Cola 2.5 Lts Ret</td><td>6</td><td>31</td><td><span class="pill p-ambar">6 días</span></td></tr>
+<tr class="cods" style="display:none"><td colspan="4">código → 055310227: 6</td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Agua Crist. Bot. 20Lt.</td><td>10</td><td>49</td><td><span class="pill p-ambar">6 días</span></td></tr>
+<tr class="cods" style="display:none"><td colspan="4">código → 0200: 10</td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Pepsi 2.5 Lt Rt</td><td>15</td><td>62</td><td><span class="pill p-ambar">7 días</span></td></tr>
 <tr class="cods" style="display:none"><td colspan="4">código → 031305629: 15</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Pepsi 3 Lt</td><td>10</td><td>36</td><td><span class="pill p-ambar">9 días</span></td></tr>
-<tr class="cods" style="display:none"><td colspan="4">código → 031310098: 10</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> COCA COLA 2.5 Lt N/R</td><td>37</td><td>114</td><td><span class="pill p-ambar">10 días</span></td></tr>
-<tr class="cods" style="display:none"><td colspan="4">código → 055305247: 37</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> The Nando 500 Ml</td><td>90</td><td>267</td><td><span class="pill p-ambar">10 días</span></td></tr>
-<tr class="cods" style="display:none"><td colspan="4">código → 0214: 90</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Pepsi 1.5 Lt.</td><td>15</td><td>44</td><td><span class="pill p-ambar">10 días</span></td></tr>
-<tr class="cods" style="display:none"><td colspan="4">código → 031311682: 15</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Coca Cola 600Ml</td><td>58</td><td>160</td><td><span class="pill p-ambar">11 días</span></td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> The Nando Lt</td><td>121</td><td>501</td><td><span class="pill p-ambar">7 días</span></td></tr>
+<tr class="cods" style="display:none"><td colspan="4">código → 0215: 121</td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Cocacola Sin Azucar 2.5</td><td>16</td><td>59</td><td><span class="pill p-ambar">8 días</span></td></tr>
+<tr class="cods" style="display:none"><td colspan="4">código → 055321681: 16</td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Pepsi 2.5 Lt</td><td>9</td><td>31</td><td><span class="pill p-ambar">9 días</span></td></tr>
+<tr class="cods" style="display:none"><td colspan="4">código → 031310258: 9</td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Coca Cola 600Ml</td><td>58</td><td>165</td><td><span class="pill p-ambar">11 días</span></td></tr>
 <tr class="cods" style="display:none"><td colspan="4">código → 75007614: 58</td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> COCA COLA 2.5 Lt N/R</td><td>37</td><td>101</td><td><span class="pill p-ambar">11 días</span></td></tr>
+<tr class="cods" style="display:none"><td colspan="4">código → 055305247: 37</td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Agua Electropura 20 Lts</td><td>29</td><td>79</td><td><span class="pill p-ambar">11 días</span></td></tr>
+<tr class="cods" style="display:none"><td colspan="4">código → 0300: 29</td></tr>
 </table></div>
 <div class="card"><h2>🍸 Mezclas — pedir ya</h2><table><tr><th>Producto</th><th>Hay</th><th>Vende/mes</th><th>Estado</th></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Lata Bacardi Coca Cola 355Ml</td><td>5</td><td>27</td><td><span class="pill p-ambar">6 días</span></td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Lata Bacardi Coca Cola 355Ml</td><td>5</td><td>22</td><td><span class="pill p-ambar">7 días</span></td></tr>
 <tr class="cods" style="display:none"><td colspan="4">código → 055387854: 5</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Skyy Citrus 275</td><td>15</td><td>63</td><td><span class="pill p-ambar">7 días</span></td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Skyy Citrus 275</td><td>15</td><td>61</td><td><span class="pill p-ambar">8 días</span></td></tr>
 <tr class="cods" style="display:none"><td colspan="4">código → 607696012: 15</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Lata Topo Chico Cantarito 355Ml</td><td>8</td><td>16</td><td><span class="pill p-ambar">16 días</span></td></tr>
-<tr class="cods" style="display:none"><td colspan="4">código → 055385492: 8</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Lata Jack Daniel Tennesie Coca C</td><td>9</td><td>17</td><td><span class="pill p-ambar">16 días</span></td></tr>
-<tr class="cods" style="display:none"><td colspan="4">código → 055381470: 9</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Topo Chico Paloma 355Ml</td><td>8</td><td>13</td><td><span class="pill p-ambar">19 días</span></td></tr>
-<tr class="cods" style="display:none"><td colspan="4">código → 055385508: 8</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Presidente Cuba Lata 355Ml</td><td>7</td><td>10</td><td><span class="pill p-ambar">21 días</span></td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Presidente Cuba Lata 355Ml</td><td>7</td><td>13</td><td><span class="pill p-ambar">17 días</span></td></tr>
 <tr class="cods" style="display:none"><td colspan="4">código → 032485719: 7</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Skyy Cosmo</td><td>18</td><td>25</td><td><span class="pill p-ambar">22 días</span></td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Topo Chico Paloma 355Ml</td><td>8</td><td>14</td><td><span class="pill p-ambar">17 días</span></td></tr>
+<tr class="cods" style="display:none"><td colspan="4">código → 055385508: 8</td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Skyy Cosmo</td><td>18</td><td>23</td><td><span class="pill p-ambar">24 días</span></td></tr>
 <tr class="cods" style="display:none"><td colspan="4">código → 059712750: 18</td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Lata Jack Daniel Tennesie Coca C</td><td>9</td><td>11</td><td><span class="pill p-ambar">25 días</span></td></tr>
+<tr class="cods" style="display:none"><td colspan="4">código → 055381470: 9</td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Lata Topo Chico Cantarito 355Ml</td><td>8</td><td>10</td><td><span class="pill p-ambar">25 días</span></td></tr>
+<tr class="cods" style="display:none"><td colspan="4">código → 055385492: 8</td></tr>
 </table></div>
 <div class="card"><h2>🥃 Licores y destilados — surtir (1-2 meses)</h2><table><tr><th>Producto</th><th>Hay</th><th>Vende/mes</th><th>Estado</th></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Canoral Blanco 1Lt</td><td>10</td><td>145</td><td><span class="pill p-rojo">~2 días</span></td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Brandy Azteca D Oro 700Ml</td><td>0</td><td>7</td><td><span class="pill p-rojo">agotado</span></td></tr>
+<tr class="cods" style="display:none"><td colspan="4">código → 023578943: 0</td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Caña Real Blanco 1Lt</td><td>10</td><td>151</td><td><span class="pill p-rojo">~2 días</span></td></tr>
 <tr class="cods" style="display:none"><td colspan="4">código → 020812521: 10</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Canoral Blanco De 500Ml</td><td>13</td><td>156</td><td><span class="pill p-rojo">~3 días</span></td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Caña Real Blanco 500Ml</td><td>13</td><td>151</td><td><span class="pill p-rojo">~3 días</span></td></tr>
 <tr class="cods" style="display:none"><td colspan="4">código → 020812514: 13</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Whysky Duglass 200Ml</td><td>3</td><td>8</td><td><span class="pill p-ambar">12 días</span></td></tr>
-<tr class="cods" style="display:none"><td colspan="4">código → 247081512: 3</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Licor De Agave El Compadre Lt</td><td>4</td><td>6</td><td><span class="pill p-ambar">19 días</span></td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Licor De Agave El Compadre Lt</td><td>4</td><td>7</td><td><span class="pill p-ambar">17 días</span></td></tr>
 <tr class="cods" style="display:none"><td colspan="4">código → 214400292: 4</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Whisky Red Label Bot</td><td>16</td><td>15</td><td><span class="pill p-ambar">32 días</span></td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Whisky Red Label Bot</td><td>16</td><td>16</td><td><span class="pill p-ambar">30 días</span></td></tr>
 <tr class="cods" style="display:none"><td colspan="4">códigos → 267190280: 15 · 267014203: 4 · 267014074: -3</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Ron Bacardi Carta Blanca Lt</td><td>26</td><td>19</td><td><span class="pill p-ambar">42 días</span></td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Ron Bacardi Carta Blanca Lt</td><td>26</td><td>23</td><td><span class="pill p-ambar">35 días</span></td></tr>
 <tr class="cods" style="display:none"><td colspan="4">código → 008660201: 26</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Vodka Zaverich Lt</td><td>18</td><td>10</td><td><span class="pill p-ambar">53 días</span></td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Vodka Zaverich Lt</td><td>18</td><td>12</td><td><span class="pill p-ambar">47 días</span></td></tr>
 <tr class="cods" style="display:none"><td colspan="4">código → 213341350: 18</td></tr>
 </table></div>
 <div class="card"><h2>🍷 Vinos de mesa — surtir (1-2 meses)</h2><table><tr><th>Producto</th><th>Hay</th><th>Vende/mes</th><th>Estado</th></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Vino T.Reserv. Cyt Merlot 750Ml</td><td>3</td><td>8</td><td><span class="pill p-ambar">12 días</span></td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Vino T.Reserv. Cyt Merlot 750Ml</td><td>3</td><td>6</td><td><span class="pill p-ambar">15 días</span></td></tr>
 <tr class="cods" style="display:none"><td colspan="4">código → 320148397: 3</td></tr>
 </table></div>
 <div class="card"><h2>🍹 Coolers — surtir (1-2 meses)</h2><table><tr><th>Producto</th><th>Hay</th><th>Vende/mes</th><th>Estado</th></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Caribe Cooler Ultra Drz</td><td>0</td><td>22</td><td><span class="pill p-rojo">agotado</span></td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Caribe Cooler Ultra Drz</td><td>0</td><td>17</td><td><span class="pill p-rojo">agotado</span></td></tr>
 <tr class="cods" style="display:none"><td colspan="4">código → 032485412: -1</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Caribe Cooler Durazno</td><td>72</td><td>65</td><td><span class="pill p-ambar">34 días</span></td></tr>
-<tr class="cods" style="display:none"><td colspan="4">código → 032485016: 72</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Caribe Cooler Mango-Piña</td><td>48</td><td>40</td><td><span class="pill p-ambar">37 días</span></td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Caribe Cooler Mango-Piña</td><td>48</td><td>37</td><td><span class="pill p-ambar">40 días</span></td></tr>
 <tr class="cods" style="display:none"><td colspan="4">código → 032485030: 48</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Caribe Cooler Fresa</td><td>76</td><td>54</td><td><span class="pill p-ambar">43 días</span></td></tr>
-<tr class="cods" style="display:none"><td colspan="4">código → 032485047: 76</td></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Caribe Cooler Manzana Verde-Kiwi</td><td>61</td><td>40</td><td><span class="pill p-ambar">46 días</span></td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Caribe Cooler Manzana Verde-Kiwi</td><td>61</td><td>46</td><td><span class="pill p-ambar">41 días</span></td></tr>
 <tr class="cods" style="display:none"><td colspan="4">código → 032485054: 61</td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Caribe Cooler Durazno</td><td>72</td><td>50</td><td><span class="pill p-ambar">44 días</span></td></tr>
+<tr class="cods" style="display:none"><td colspan="4">código → 032485016: 72</td></tr>
 <tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Caribe Cooler Tinto</td><td>106</td><td>69</td><td><span class="pill p-ambar">47 días</span></td></tr>
 <tr class="cods" style="display:none"><td colspan="4">código → 032485023: 106</td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Caribe Cooler Fresa</td><td>76</td><td>47</td><td><span class="pill p-ambar">49 días</span></td></tr>
+<tr class="cods" style="display:none"><td colspan="4">código → 032485047: 76</td></tr>
 </table></div>
 <div class="card"><h2>🚬 Cigarros — pedir ya</h2><table><tr><th>Producto</th><th>Hay</th><th>Vende/mes</th><th>Estado</th></tr>
-<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Pall Mall Alaska 20</td><td>43</td><td>212</td><td><span class="pill p-ambar">6 días</span></td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Pall Mall Alaska 20</td><td>43</td><td>216</td><td><span class="pill p-ambar">6 días</span></td></tr>
 <tr class="cods" style="display:none"><td colspan="4">código → 75071295: 43</td></tr>
+<tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Marlboro Rojo</td><td>20</td><td>77</td><td><span class="pill p-ambar">8 días</span></td></tr>
+<tr class="cods" style="display:none"><td colspan="4">código → 75001322: 20</td></tr>
 </table></div>
 
   <p class="nota">«Hay» = existencia real del producto (SUMA de todos sus códigos; la cerveza usa tu conteo físico). <b>Toca un producto</b> para ver sus códigos y la existencia de cada uno. «Estado» = a cuántos días se agota al ritmo de venta.</p>
