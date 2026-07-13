@@ -64,6 +64,12 @@ header p{margin:4px 0 0;color:var(--sub);font-size:13px;}
 .par .nm{font-weight:600;} .par .tr{background:var(--bar-soft);border-radius:4px;height:15px;overflow:hidden;}
 .par .fl{background:var(--bar);height:100%;} .par .vv{text-align:right;white-space:nowrap;}
 .par .vv small{color:var(--sub);}
+.par.exp{cursor:pointer;} .par.exp:active{opacity:.65;}
+.chev{display:inline-block;width:12px;color:var(--sub);font-size:10px;}
+.pardet{margin:0 0 9px 12px;padding-left:11px;border-left:2px solid var(--line);}
+.subpar{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--sub);padding:2px 0;}
+.subpar .sn{font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.subpar .sv{white-space:nowrap;font-variant-numeric:tabular-nums;} .subpar .sv small{color:var(--sub);}
 .mrow{display:grid;grid-template-columns:34px 1fr 70px;align-items:center;gap:8px;font-size:13px;margin-bottom:6px;font-variant-numeric:tabular-nums;}
 .mrow .n{color:var(--sub);font-weight:600;} .mrow.dim{opacity:.4;}
 .track{background:var(--bar-soft);border-radius:4px;height:15px;overflow:hidden;position:relative;}
@@ -156,6 +162,17 @@ function periodo(){ // suma gasto por categoria + totales sobre la seleccion
   yearsSel().forEach(a=>mesesSel(a).forEach(m=>{const M=G.gc[a][m]; for(const k in M){cat[k]=(cat[k]||0)+M[k]; gtot+=M[k];} vtot+=ventaMes(a,m);}));
   return {cat,gtot,vtot};
 }
+function agentesDe(cat){ // (solo privada) suma por AGENTE dentro de una categoria, sobre la seleccion
+  const ag={};
+  yearsSel().forEach(a=>mesesSel(a).forEach(m=>{const M=G.gc2&&G.gc2[a]&&G.gc2[a][m]&&G.gc2[a][m][cat];
+    if(M)for(const k in M)ag[k]=(ag[k]||0)+M[k];}));
+  return ag;
+}
+function togPar(el){
+  const d=el.nextElementSibling; if(!d||!d.classList.contains("pardet"))return;
+  const op=d.style.display!=="none"; d.style.display=op?"none":"block";
+  const c=el.querySelector(".chev"); if(c)c.textContent=op?"▸":"▾";
+}
 function focusYM(){ // mes en foco para semaforo/focos rojos
   if(selM!=="T"){const a=selA==="T"?anios[anios.length-1]:selA; return [a,selM];}
   const a=selA==="T"?anios[anios.length-1]:selA; const ms=mesesDe(a); return [a,ms[ms.length-1]];
@@ -208,17 +225,22 @@ function render(){
     fc.insertAdjacentHTML("beforeend",'<div class="alert'+(a.tipo==="new"?" new":"")+'"><b>'+a.cat+': '+fmt(a.cur)+'</b><div class="m">'+
       (a.tipo==="new"?"apareció este mes (casi siempre es $0)":"vs su normal "+fmt(a.base)+" → +"+fmt(a.dif))+'</div></div>');
   });
-  // ---- 3) PARETO ----
+  // ---- 3) PARETO (en la version privada, cada categoria se EXPANDE por agente) ----
   $("tPar").textContent="¿En qué se fue? · "+per;
   const pares=Object.entries(P.cat).filter(([k,v])=>v>0).sort((a,b)=>b[1]-a[1]);
   const totp=pares.reduce((s,x)=>s+x[1],0)||1; const mx=pares.length?pares[0][1]:1;
   const cont=$("par"); cont.innerHTML=""; let acc=0, n85=0;
   const top=pares.slice(0,9); const resto=pares.slice(9).reduce((s,x)=>s+x[1],0);
+  const EXP=!!G.gc2;   // solo la version privada trae el desglose por agente
   top.forEach(([k,v])=>{acc+=v; if(acc<=totp*0.85)n85++;
-    cont.insertAdjacentHTML("beforeend",'<div class="par"><span class="nm">'+k+'</span><div class="tr"><div class="fl" style="width:'+Math.round(v/mx*100)+'%"></div></div><span class="vv">'+fmtk(v)+' <small>'+(v/totp*100).toFixed(0)+'%</small></span></div>');});
-  if(resto>0) cont.insertAdjacentHTML("beforeend",'<div class="par"><span class="nm">Otras ('+(pares.length-9)+')</span><div class="tr"><div class="fl" style="width:'+Math.round(resto/mx*100)+'%;opacity:.5"></div></div><span class="vv">'+fmtk(resto)+' <small>'+(resto/totp*100).toFixed(0)+'%</small></span></div>');
+    let h='<div class="par'+(EXP?" exp":"")+'"'+(EXP?' onclick="togPar(this)"':'')+'><span class="nm">'+(EXP?'<span class="chev">▸</span> ':'')+k+'</span><div class="tr"><div class="fl" style="width:'+Math.round(v/mx*100)+'%"></div></div><span class="vv">'+fmtk(v)+' <small>'+(v/totp*100).toFixed(0)+'%</small></span></div>';
+    if(EXP){const ags=agentesDe(k); const at=Object.values(ags).reduce((s,x)=>s+x,0)||1;
+      const sub=Object.entries(ags).sort((a,b)=>b[1]-a[1]).map(([a,m])=>'<div class="subpar"><span class="sn">'+a+'</span><span class="sv">'+fmtk(m)+' <small>'+(m/at*100).toFixed(0)+'%</small></span></div>').join("");
+      h+='<div class="pardet" style="display:none">'+sub+'</div>';}
+    cont.insertAdjacentHTML("beforeend",h);});
+  if(resto>0) cont.insertAdjacentHTML("beforeend",'<div class="par"><span class="nm">'+(EXP?'<span class="chev" style="visibility:hidden">▸</span> ':'')+'Otras ('+(pares.length-9)+')</span><div class="tr"><div class="fl" style="width:'+Math.round(resto/mx*100)+'%;opacity:.5"></div></div><span class="vv">'+fmtk(resto)+' <small>'+(resto/totp*100).toFixed(0)+'%</small></span></div>');
   let cum=0,ncum=0; for(const [k,v] of pares){cum+=v;ncum++; if(cum>=totp*0.85)break;}
-  $("nPar").textContent="Estas "+ncum+" categorías son ~85% de tu gasto. Ahí es donde negociar (terminal, luz, contabilidad) mueve la aguja.";
+  $("nPar").textContent="Estas "+ncum+" categorías son ~85% de tu gasto. Ahí es donde negociar (terminal, luz, contabilidad) mueve la aguja."+(EXP?" Toca una categoría para ver por quién se fue.":"");
   // ---- 4) EFICIENCIA (mensual o anual) ----
   const ef=$("ef"); ef.innerHTML="";
   if(todosA){
