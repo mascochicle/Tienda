@@ -133,6 +133,7 @@ const G={"gc":{"2023":{"1":{"Comisiones Terminal":2889.74,"Artículos de Limpiez
 const MES=["","Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
 const anios=Object.keys(G.gc);
 let selA=anios[anios.length-1], selM="T";
+let AA_ROWS=[], AA_years=["",""], AA_sort={col:3,dir:-1};   // "año vs año" ordenable (default: Cambio desc)
 const $=id=>document.getElementById(id);
 const fmt=n=>(n<0?"-$":"$")+Math.abs(Math.round(n)).toLocaleString("en-US");
 const fmtk=n=>(n<0?"-":"")+(Math.abs(n)>=1e6?("$"+(Math.abs(n)/1e6).toFixed(2)+"M"):("$"+Math.round(Math.abs(n)/1000).toLocaleString("en-US")+"k"));
@@ -141,6 +142,18 @@ const esParcial=(a,m)=>G.parcial&&+a===G.parcial.y&&+m===G.parcial.m;
 const mesesDe=a=>Object.keys(G.gc[a]);
 const yearsSel=()=>selA==="T"?anios:[selA];
 const mesesSel=a=>selM==="T"?mesesDe(a):(G.gc[a][selM]?[selM]:[]);
+// "año vs año" ordenable por columna (Categoría / año pasado / año actual / Cambio)
+function sortAA(i){ if(AA_sort.col===i)AA_sort.dir*=-1; else AA_sort={col:i,dir:i===0?1:-1}; renderAA(); }
+function renderAA(){
+  const tb=$("tabAA"); if(!tb)return;
+  const keys=["cat","p","c","d"], isNum=[false,true,true,true];
+  const labels=["Categoría",AA_years[0],AA_years[1],"Cambio"]; const s=AA_sort;
+  let h="<tr>"+labels.map((lb,i)=>'<th style="cursor:pointer;user-select:none" onclick="sortAA('+i+')">'+lb+(s.col===i?(s.dir>0?" ▲":" ▼"):"")+'</th>').join("")+"</tr>";
+  const rows=[...AA_ROWS].sort((a,b)=>{const k=keys[s.col]; return isNum[s.col]?(a[k]-b[k])*s.dir:String(a[k]).localeCompare(String(b[k]))*s.dir;});
+  h+=rows.map(r=>{const cl=r.d>0?"up":"down"; const pc=r.p?(r.d/r.p*100).toFixed(0)+"%":"nuevo";
+    return "<tr><td>"+r.cat+"</td><td>"+fmtk(r.p)+"</td><td>"+fmtk(r.c)+"</td><td class='"+cl+"'>"+(r.d>0?"▲ +":"▼ ")+fmtk(Math.abs(r.d))+" ("+pc+")</td></tr>";}).join("");
+  tb.innerHTML=h;
+}
 // serie mensual plana ordenada
 const FLAT=[]; anios.forEach(a=>mesesDe(a).forEach(m=>FLAT.push([a,m])));
 FLAT.sort((x,y)=>x[0]-y[0]||x[1]-y[1]);
@@ -257,21 +270,19 @@ function render(){
   rr.innerHTML='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">'+heavy.map(([disp,key])=>{
     let g=0; for(const k in P.cat){if(norm(k)===key)g+=P.cat[k];} const r=P.vtot?g/P.vtot*100:0;
     return '<span style="font-size:12px;border:1px solid var(--line);border-radius:99px;padding:2px 9px">'+disp+' <b>'+r.toFixed(1)+'%</b></span>';}).join("")+'</div>';
-  // ---- 5) AÑO VS AÑO ----
+  // ---- 5) AÑO VS AÑO (meses CERRADOS: mismos meses de ambos años; excluye el mes en curso) ----
   const curY=todosA?anios[anios.length-1]:selA; const py=String(+curY-1);
   $("tAA").textContent="Año vs año por categoría";
-  const ths=$("tabAA").querySelectorAll("th"); ths[1].textContent=curY; ths[2].textContent=py;
-  const tb=$("tabAA"); tb.querySelectorAll("tr:not(:first-child)").forEach(r=>r.remove());
   if(G.gc[py]){
-    const msCmp=mesesDe(curY).filter(m=>G.gc[py][m]&&!esParcial(curY,m)); // meses completos presentes en ambos
-    const cy={},pv={}; msCmp.forEach(m=>{const A=G.gc[curY][m],B=G.gc[py][m];
+    const msCmp=mesesDe(curY).filter(m=>G.gc[py][m]&&!esParcial(curY,m)).map(Number).sort((a,b)=>a-b);
+    const cy={},pv={}; msCmp.forEach(m=>{const A=G.gc[curY][m]||{},B=G.gc[py][m]||{};
       for(const k in A){cy[k]=(cy[k]||0)+A[k];} for(const k in B){pv[k]=(pv[k]||0)+B[k];}});
-    const rows=Object.keys({...cy,...pv}).map(k=>[k,cy[k]||0,pv[k]||0]).filter(r=>r[1]+r[2]>1000)
-      .sort((a,b)=>(b[1]-b[2])-(a[1]-a[2]));
-    rows.slice(0,10).forEach(([k,c,p])=>{const d=c-p; const pc=p?(d/p*100).toFixed(0)+"%":"nuevo"; const cl=d>0?"up":"down";
-      tb.insertAdjacentHTML("beforeend","<tr><td>"+k+"</td><td>"+fmtk(c)+"</td><td>"+fmtk(p)+"</td><td class='"+cl+"'>"+(d>0?"▲ +":"▼ ")+fmtk(Math.abs(d))+" ("+pc+")</td></tr>");});
-    $("nAA").textContent="Acumulado de meses completos comparables. Ordenado por la que más subió en pesos.";
-  } else { $("nAA").textContent="No hay año anterior completo para comparar."; }
+    AA_ROWS=Object.keys({...cy,...pv}).map(k=>({cat:k,p:pv[k]||0,c:cy[k]||0,d:(cy[k]||0)-(pv[k]||0)})).filter(r=>r.p+r.c>1000);
+    AA_years=[py,curY];   // COLUMNAS: primero el año pasado, luego el actual
+    const rango=msCmp.length?MES[msCmp[0]]+"–"+MES[msCmp[msCmp.length-1]]:"";
+    $("nAA").textContent="Acumulado "+rango+" ("+msCmp.length+" meses cerrados) · "+py+" vs "+curY+", mismos meses. Toca un encabezado para ordenar.";
+    renderAA();
+  } else { AA_ROWS=[]; $("tabAA").innerHTML="<tr><th>Categoría</th></tr>"; $("nAA").textContent="No hay año anterior completo para comparar."; }
   // ---- 6) NOMINA % ----
   let nom=0; for(const k in P.cat){if(G.labor.includes(norm(k)))nom+=P.cat[k];}
   const nr=P.vtot?nom/P.vtot*100:0;
