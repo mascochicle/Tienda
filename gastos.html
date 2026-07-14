@@ -71,11 +71,8 @@ header p{margin:4px 0 0;color:var(--sub);font-size:13px;}
 .subpar .sn{font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .subpar .sv{white-space:nowrap;font-variant-numeric:tabular-nums;} .subpar .sv small{color:var(--sub);}
 tr.aa-cat{cursor:pointer;} tr.aa-cat:active td{background:var(--bar-soft);}
-.aa-det td{padding:3px 3px 9px 12px;}
-.aadet-row{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--sub);padding:2px 0;border-bottom:1px solid var(--line);}
-.aadet-row:last-child{border-bottom:none;}
-.aan{font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.aav{white-space:nowrap;font-variant-numeric:tabular-nums;} .aav b.up{color:var(--bad);} .aav b.down{color:var(--ok);}
+tr.aa-det td{font-size:12px;color:var(--sub);padding:4px 3px;}
+td.aa-sub{padding-left:22px;font-weight:400;}
 .tag-new{font-size:9px;font-weight:700;background:var(--warn-bg);color:var(--warn);border-radius:99px;padding:1px 5px;margin-left:5px;}
 .tag-out{font-size:9px;font-weight:700;background:var(--line);color:var(--sub);border-radius:99px;padding:1px 5px;margin-left:5px;}
 .mrow{display:grid;grid-template-columns:34px 1fr 70px;align-items:center;gap:8px;font-size:13px;margin-bottom:6px;font-variant-numeric:tabular-nums;}
@@ -152,7 +149,7 @@ const yearsSel=()=>selA==="T"?anios:[selA];
 const mesesSel=a=>selM==="T"?mesesDe(a):(G.gc[a][selM]?[selM]:[]);
 // "año vs año" ordenable por columna + EXPANDIBLE por agente (ver quién subió o apareció nuevo)
 function sortAA(i){ if(AA_sort.col===i)AA_sort.dir*=-1; else AA_sort={col:i,dir:i===0?1:-1}; renderAA(); }
-function agentesAA(cat){   // desglose por agente de una categoria: año pasado vs actual, mismos meses cerrados
+function agentesAA(cat){   // desglose por agente: año pasado vs actual, mismos meses cerrados (renderAA lo ordena)
   const py=AA_years[0], cy=AA_years[1], a0={}, a1={};
   AA_meses.forEach(m=>{
     const B=G.gc2&&G.gc2[py]&&G.gc2[py][m]&&G.gc2[py][m][cat];
@@ -160,22 +157,23 @@ function agentesAA(cat){   // desglose por agente de una categoria: año pasado 
     if(B)for(const k in B)a0[k]=(a0[k]||0)+B[k];
     if(A)for(const k in A)a1[k]=(a1[k]||0)+A[k];
   });
-  return Object.keys({...a0,...a1}).map(k=>({ag:k,p:a0[k]||0,c:a1[k]||0,d:(a1[k]||0)-(a0[k]||0)})).filter(a=>a.p+a.c>50).sort((x,y)=>y.d-x.d);
+  return Object.keys({...a0,...a1}).map(k=>({ag:k,p:a0[k]||0,c:a1[k]||0,d:(a1[k]||0)-(a0[k]||0)})).filter(a=>a.p+a.c>50);
 }
-function togAA(tr){ const d=tr.nextElementSibling; if(!d||!d.classList.contains("aa-det"))return;
-  const op=d.style.display!=="none"; d.style.display=op?"none":""; const c=tr.querySelector(".chev"); if(c)c.textContent=op?"▸":"▾"; }
+function togAA(idx){ const rows=document.querySelectorAll(".aa-"+idx); if(!rows.length)return;
+  const op=rows[0].style.display!=="none"; rows.forEach(r=>r.style.display=op?"none":"");
+  const c=$("chAA"+idx); if(c)c.textContent=op?"▸":"▾"; }
 function renderAA(){
   const tb=$("tabAA"); if(!tb)return;
-  const keys=["cat","p","c","d"], isNum=[false,true,true,true];
-  const labels=["Categoría",AA_years[0],AA_years[1],"Cambio"]; const s=AA_sort;
+  const keys=["cat","p","c","d"], agK=["ag","p","c","d"], isNum=[false,true,true,true]; const s=AA_sort;
+  const labels=["Categoría",AA_years[0],AA_years[1],"Cambio"];
   let h="<tr>"+labels.map((lb,i)=>'<th style="cursor:pointer;user-select:none" onclick="sortAA('+i+')">'+lb+(s.col===i?(s.dir>0?" ▲":" ▼"):"")+'</th>').join("")+"</tr>";
   const rows=[...AA_ROWS].sort((a,b)=>{const k=keys[s.col]; return isNum[s.col]?(a[k]-b[k])*s.dir:String(a[k]).localeCompare(String(b[k]))*s.dir;});
-  h+=rows.map(r=>{const cl=r.d>0?"up":"down"; const pc=r.p?(r.d/r.p*100).toFixed(0)+"%":"nuevo";
-    let row="<tr class='aa-cat' onclick='togAA(this)'><td><span class='chev'>▸</span> "+r.cat+"</td><td>"+fmtk(r.p)+"</td><td>"+fmtk(r.c)+"</td><td class='"+cl+"'>"+(r.d>0?"▲ +":"▼ ")+fmtk(Math.abs(r.d))+" ("+pc+")</td></tr>";
-    const sub=agentesAA(r.cat).map(a=>{const acl=a.d>0?"up":"down"; const nv=a.p<=0?" <span class='tag-new'>nuevo</span>":(a.c<=0?" <span class='tag-out'>ya no</span>":"");
-      return "<div class='aadet-row'><span class='aan'>"+a.ag+nv+"</span><span class='aav'>"+fmtk(a.p)+" → "+fmtk(a.c)+" <b class='"+acl+"'>"+(a.d>0?"▲+":"▼")+fmtk(Math.abs(a.d))+"</b></span></div>";}).join("");
-    row+="<tr class='aa-det' style='display:none'><td colspan='4'>"+(sub||"<span style='color:var(--sub);font-size:12px'>— sin detalle por agente —</span>")+"</td></tr>";
-    return row;}).join("");
+  rows.forEach((r,idx)=>{const cl=r.d>0?"up":"down"; const pc=r.p?(r.d/r.p*100).toFixed(0)+"%":"nuevo";
+    h+="<tr class='aa-cat' onclick='togAA("+idx+")'><td><span class='chev' id='chAA"+idx+"'>▸</span> "+r.cat+"</td><td>"+fmtk(r.p)+"</td><td>"+fmtk(r.c)+"</td><td class='"+cl+"'>"+(r.d>0?"▲ +":"▼ ")+fmtk(Math.abs(r.d))+" ("+pc+")</td></tr>";
+    const k2=agK[s.col]; const ags=agentesAA(r.cat).sort((x,y)=> s.col===0?String(x.ag).localeCompare(String(y.ag))*s.dir:(x[k2]-y[k2])*s.dir);
+    ags.forEach(a=>{const acl=a.d>0?"up":"down"; const nv=a.p<=0?" <span class='tag-new'>nuevo</span>":(a.c<=0?" <span class='tag-out'>ya no</span>":"");
+      h+="<tr class='aa-det aa-"+idx+"' style='display:none'><td class='aa-sub'>"+a.ag+nv+"</td><td>"+fmtk(a.p)+"</td><td>"+fmtk(a.c)+"</td><td class='"+acl+"'>"+(a.d>0?"▲ +":"▼ ")+fmtk(Math.abs(a.d))+"</td></tr>";});
+  });
   tb.innerHTML=h;
 }
 // serie mensual plana ordenada
