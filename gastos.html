@@ -176,7 +176,7 @@ function renderAA(){
     h+="<tr class='aa-cat' onclick='togAA("+r.id+")'><td><span class='chev'>"+(op?"▾":"▸")+"</span> "+r.cat+"</td><td>"+fmtk(r.p)+"</td><td>"+fmtk(r.c)+"</td><td class='"+cl+"'>"+(r.d>0?"▲ +":"▼ ")+fmtk(Math.abs(r.d))+" ("+pc+")</td></tr>";
     if(op){
       const as=AA_agSort[r.id]||{col:3,dir:-1};
-      const agLb=["Agente",AA_years[0],AA_years[1],"Cambio"];
+      const agLb=["Agente","Antes","Ahora","Cambio"];   // "Antes/Ahora" en vez de repetir los años
       h+="<tr class='aa-hd'>"+agLb.map((lb,i)=>"<td onclick='sortAg("+r.id+","+i+")'"+(i===0?" class='aa-sub'":"")+">"+lb+arrowAA(as,i)+"</td>").join("")+"</tr>";
       const k2=agK[as.col];
       const ags=agentesAA(r.cat).sort((x,y)=> as.col===0?String(x.ag).localeCompare(String(y.ag))*as.dir:(x[k2]-y[k2])*as.dir);
