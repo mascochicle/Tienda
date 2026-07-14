@@ -72,6 +72,9 @@ header p{margin:4px 0 0;color:var(--sub);font-size:13px;}
 .subpar .sv{white-space:nowrap;font-variant-numeric:tabular-nums;} .subpar .sv small{color:var(--sub);}
 tr.aa-cat{cursor:pointer;} tr.aa-cat:active td{background:var(--bar-soft);}
 tr.aa-det td{font-size:12px;color:var(--sub);padding:4px 3px;}
+tr.aa-det td.up{color:var(--bad);} tr.aa-det td.down{color:var(--ok);}   /* flecha de cambio en rojo/verde */
+tr.aa-hd td{font-size:9.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--sub);font-weight:700;cursor:pointer;user-select:none;padding:5px 3px 2px;}
+tr.aa-hd td:active{color:var(--acc);}
 td.aa-sub{padding-left:22px;font-weight:400;}
 .tag-new{font-size:9px;font-weight:700;background:var(--warn-bg);color:var(--warn);border-radius:99px;padding:1px 5px;margin-left:5px;}
 .tag-out{font-size:9px;font-weight:700;background:var(--line);color:var(--sub);border-radius:99px;padding:1px 5px;margin-left:5px;}
@@ -139,6 +142,7 @@ const MES=["","Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov",
 const anios=Object.keys(G.gc);
 let selA=anios[anios.length-1], selM="T";
 let AA_ROWS=[], AA_years=["",""], AA_meses=[], AA_sort={col:3,dir:-1};   // "año vs año" ordenable+expandible (default: Cambio desc)
+let AA_agSort={}, AA_open={};   // por categoría: orden de sus agentes y si está expandida
 const $=id=>document.getElementById(id);
 const fmt=n=>(n<0?"-$":"$")+Math.abs(Math.round(n)).toLocaleString("en-US");
 const fmtk=n=>(n<0?"-":"")+(Math.abs(n)>=1e6?("$"+(Math.abs(n)/1e6).toFixed(2)+"M"):("$"+Math.round(Math.abs(n)/1000).toLocaleString("en-US")+"k"));
@@ -148,8 +152,11 @@ const mesesDe=a=>Object.keys(G.gc[a]);
 const yearsSel=()=>selA==="T"?anios:[selA];
 const mesesSel=a=>selM==="T"?mesesDe(a):(G.gc[a][selM]?[selM]:[]);
 // "año vs año" ordenable por columna + EXPANDIBLE por agente (ver quién subió o apareció nuevo)
+function arrowAA(s,i){ return s.col===i?(s.dir>0?" ▲":" ▼"):""; }
 function sortAA(i){ if(AA_sort.col===i)AA_sort.dir*=-1; else AA_sort={col:i,dir:i===0?1:-1}; renderAA(); }
-function agentesAA(cat){   // desglose por agente: año pasado vs actual, mismos meses cerrados (renderAA lo ordena)
+function sortAg(id,col){ let s=AA_agSort[id]||{col:3,dir:-1}; if(s.col===col)s.dir*=-1; else s={col:col,dir:col===0?1:-1}; AA_agSort[id]=s; renderAA(); }
+function togAA(id){ AA_open[id]=!AA_open[id]; renderAA(); }
+function agentesAA(cat){   // desglose por agente: año pasado vs actual, mismos meses cerrados
   const py=AA_years[0], cy=AA_years[1], a0={}, a1={};
   AA_meses.forEach(m=>{
     const B=G.gc2&&G.gc2[py]&&G.gc2[py][m]&&G.gc2[py][m][cat];
@@ -159,20 +166,23 @@ function agentesAA(cat){   // desglose por agente: año pasado vs actual, mismos
   });
   return Object.keys({...a0,...a1}).map(k=>({ag:k,p:a0[k]||0,c:a1[k]||0,d:(a1[k]||0)-(a0[k]||0)})).filter(a=>a.p+a.c>50);
 }
-function togAA(idx){ const rows=document.querySelectorAll(".aa-"+idx); if(!rows.length)return;
-  const op=rows[0].style.display!=="none"; rows.forEach(r=>r.style.display=op?"none":"");
-  const c=$("chAA"+idx); if(c)c.textContent=op?"▸":"▾"; }
 function renderAA(){
   const tb=$("tabAA"); if(!tb)return;
   const keys=["cat","p","c","d"], agK=["ag","p","c","d"], isNum=[false,true,true,true]; const s=AA_sort;
   const labels=["Categoría",AA_years[0],AA_years[1],"Cambio"];
-  let h="<tr>"+labels.map((lb,i)=>'<th style="cursor:pointer;user-select:none" onclick="sortAA('+i+')">'+lb+(s.col===i?(s.dir>0?" ▲":" ▼"):"")+'</th>').join("")+"</tr>";
+  let h="<tr>"+labels.map((lb,i)=>'<th style="cursor:pointer;user-select:none" onclick="sortAA('+i+')">'+lb+arrowAA(s,i)+'</th>').join("")+"</tr>";
   const rows=[...AA_ROWS].sort((a,b)=>{const k=keys[s.col]; return isNum[s.col]?(a[k]-b[k])*s.dir:String(a[k]).localeCompare(String(b[k]))*s.dir;});
-  rows.forEach((r,idx)=>{const cl=r.d>0?"up":"down"; const pc=r.p?(r.d/r.p*100).toFixed(0)+"%":"nuevo";
-    h+="<tr class='aa-cat' onclick='togAA("+idx+")'><td><span class='chev' id='chAA"+idx+"'>▸</span> "+r.cat+"</td><td>"+fmtk(r.p)+"</td><td>"+fmtk(r.c)+"</td><td class='"+cl+"'>"+(r.d>0?"▲ +":"▼ ")+fmtk(Math.abs(r.d))+" ("+pc+")</td></tr>";
-    const k2=agK[s.col]; const ags=agentesAA(r.cat).sort((x,y)=> s.col===0?String(x.ag).localeCompare(String(y.ag))*s.dir:(x[k2]-y[k2])*s.dir);
-    ags.forEach(a=>{const acl=a.d>0?"up":"down"; const nv=a.p<=0?" <span class='tag-new'>nuevo</span>":(a.c<=0?" <span class='tag-out'>ya no</span>":"");
-      h+="<tr class='aa-det aa-"+idx+"' style='display:none'><td class='aa-sub'>"+a.ag+nv+"</td><td>"+fmtk(a.p)+"</td><td>"+fmtk(a.c)+"</td><td class='"+acl+"'>"+(a.d>0?"▲ +":"▼ ")+fmtk(Math.abs(a.d))+"</td></tr>";});
+  rows.forEach(r=>{const cl=r.d>0?"up":"down"; const pc=r.p?(r.d/r.p*100).toFixed(0)+"%":"nuevo"; const op=!!AA_open[r.id];
+    h+="<tr class='aa-cat' onclick='togAA("+r.id+")'><td><span class='chev'>"+(op?"▾":"▸")+"</span> "+r.cat+"</td><td>"+fmtk(r.p)+"</td><td>"+fmtk(r.c)+"</td><td class='"+cl+"'>"+(r.d>0?"▲ +":"▼ ")+fmtk(Math.abs(r.d))+" ("+pc+")</td></tr>";
+    if(op){
+      const as=AA_agSort[r.id]||{col:3,dir:-1};
+      const agLb=["Agente",AA_years[0],AA_years[1],"Cambio"];
+      h+="<tr class='aa-hd'>"+agLb.map((lb,i)=>"<td onclick='sortAg("+r.id+","+i+")'"+(i===0?" class='aa-sub'":"")+">"+lb+arrowAA(as,i)+"</td>").join("")+"</tr>";
+      const k2=agK[as.col];
+      const ags=agentesAA(r.cat).sort((x,y)=> as.col===0?String(x.ag).localeCompare(String(y.ag))*as.dir:(x[k2]-y[k2])*as.dir);
+      ags.forEach(a=>{const acl=a.d>0?"up":"down"; const nv=a.p<=0?" <span class='tag-new'>nuevo</span>":(a.c<=0?" <span class='tag-out'>ya no</span>":"");
+        h+="<tr class='aa-det'><td class='aa-sub'>"+a.ag+nv+"</td><td>"+fmtk(a.p)+"</td><td>"+fmtk(a.c)+"</td><td class='"+acl+"'>"+(a.d>0?"▲ +":"▼ ")+fmtk(Math.abs(a.d))+"</td></tr>";});
+    }
   });
   tb.innerHTML=h;
 }
@@ -299,8 +309,8 @@ function render(){
     const msCmp=mesesDe(curY).filter(m=>G.gc[py][m]&&!esParcial(curY,m)).map(Number).sort((a,b)=>a-b);
     const cy={},pv={}; msCmp.forEach(m=>{const A=G.gc[curY][m]||{},B=G.gc[py][m]||{};
       for(const k in A){cy[k]=(cy[k]||0)+A[k];} for(const k in B){pv[k]=(pv[k]||0)+B[k];}});
-    AA_ROWS=Object.keys({...cy,...pv}).map(k=>({cat:k,p:pv[k]||0,c:cy[k]||0,d:(cy[k]||0)-(pv[k]||0)})).filter(r=>r.p+r.c>1000);
-    AA_years=[py,curY]; AA_meses=msCmp;   // COLUMNAS: primero el año pasado, luego el actual
+    AA_ROWS=Object.keys({...cy,...pv}).map(k=>({cat:k,p:pv[k]||0,c:cy[k]||0,d:(cy[k]||0)-(pv[k]||0)})).filter(r=>r.p+r.c>1000).map((r,i)=>(r.id=i,r));
+    AA_years=[py,curY]; AA_meses=msCmp; AA_open={}; AA_agSort={};   // COLUMNAS: año pasado, luego actual; reset expansión al cambiar periodo
     const rango=msCmp.length?MES[msCmp[0]]+"–"+MES[msCmp[msCmp.length-1]]:"";
     $("nAA").textContent="Acumulado "+rango+" ("+msCmp.length+" meses cerrados) · "+py+" vs "+curY+", mismos meses. Toca un encabezado para ordenar.";
     renderAA();
