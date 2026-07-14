@@ -91,9 +91,14 @@ td:first-child{text-align:left;white-space:normal;font-weight:500;}
 tr:last-child td{border-bottom:none;}
 .up{color:var(--bad);} .down{color:var(--ok);}
 .big{font-size:28px;font-weight:650;font-variant-numeric:tabular-nums;}
-.spark{display:flex;align-items:flex-end;gap:2px;height:34px;margin:8px 0 4px;}
-.spark i{flex:1;background:var(--bar);border-radius:1.5px 1.5px 0 0;min-height:2px;}
+.sparkwrap{position:relative;margin:8px 0 4px;}
+.spark{display:flex;align-items:flex-end;gap:2px;height:34px;cursor:pointer;}
+.spark i{flex:1;background:var(--bar);border-radius:1.5px 1.5px 0 0;min-height:2px;transition:opacity .08s,background .08s;}
 .spark i.hot{background:var(--bad);}
+.spark.act i{opacity:.3;}                       /* al pasar el mouse/tocar: atenua las demas */
+.spark.act i.sel{opacity:1;background:var(--acc);}   /* y resalta la barra activa */
+.sparktip{position:absolute;bottom:100%;margin-bottom:6px;transform:translateX(-50%);background:var(--ink);color:var(--card);font-size:11.5px;padding:4px 8px;border-radius:6px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .1s;z-index:6;box-shadow:0 2px 10px rgba(0,0,0,.2);}
+.sparktip.on{opacity:1;} .sparktip b{font-weight:700;}
 .nota{font-size:12.5px;color:var(--sub);margin:8px 2px 0;}
 footer{font-size:11.5px;color:var(--sub);text-align:center;}
 footer a{color:var(--acc);}
@@ -321,30 +326,60 @@ function render(){
   $("tNom").textContent="Nómina · "+per;
   $("nomV").textContent=nr.toFixed(1)+"% de la venta";
   $("nomD").textContent="Costo laboral "+fmt(nom)+" (sueldos, seguro social, finiquitos, vacaciones, reparto). Es tu gasto controlable más grande.";
-  sparkSerie($("nomSpark"), a=>{let n=0,v=0; a.forEach(([yy,mm])=>{const M=G.gc[yy][mm]; for(const k in M)if(G.labor.includes(norm(k)))n+=M[k]; v+=ventaMes(yy,mm);}); return v?n/v*100:0;});
+  sparkSerie($("nomSpark"), a=>{let n=0,v=0; a.forEach(([yy,mm])=>{const M=G.gc[yy][mm]; for(const k in M)if(G.labor.includes(norm(k)))n+=M[k]; v+=ventaMes(yy,mm);}); return v?n/v*100:0;},
+    false,
+    (yy,mm)=>{const M=G.gc[yy][mm]||{}; let n=0; for(const k in M)if(G.labor.includes(norm(k)))n+=M[k];
+      const v=ventaMes(yy,mm);
+      return MES[mm]+" "+yy+(esParcial(yy,mm)?" (parcial)":"")+" · <b>"+fmt(n)+"</b>"+(v?" · "+(n/v*100).toFixed(1)+"% de la venta":"");});
   // ---- 7) FALTANTES ----
   let fal=0; for(const k in P.cat){if(norm(k)==="faltantes")fal+=P.cat[k];}
   const fr=P.vtot?fal/P.vtot*100:0;
   $("tFal").textContent="Faltantes · "+per;
   $("falV").textContent=fmt(fal);
   $("falD").textContent=(P.vtot?fr.toFixed(2)+"% de la venta. ":"")+"Fuga pura de utilidad (robo, merma, errores de caja). Vigila que no crezca.";
-  sparkSerie($("falSpark"), a=>{let f=0; a.forEach(([yy,mm])=>{f+=catVal(yy,mm,"Faltantes");}); return f;}, true);
+  sparkSerie($("falSpark"), a=>{let f=0; a.forEach(([yy,mm])=>{f+=catVal(yy,mm,"Faltantes");}); return f;}, true,
+    (yy,mm)=>{const f=catVal(yy,mm,"Faltantes"), v=ventaMes(yy,mm);
+      return MES[mm]+" "+yy+(esParcial(yy,mm)?" (parcial)":"")+" · <b>"+fmt(f)+"</b>"+(v?" · "+(f/v*100).toFixed(2)+"% de la venta":"");});
 }
 function barEf(el,lbl,r,parc,dim){
   const metaPct=Math.min(100,G.meta*100/0.20*100/100*100); // no usado; meta linea fija abajo
   const w=Math.min(100,Math.round(r/20*100)); const mp=Math.min(100,Math.round(G.meta*100/20*100));
   el.insertAdjacentHTML("beforeend",'<div class="mrow'+(dim?" dim":"")+'"><span class="n">'+lbl+'</span><div class="track"><div class="fill" style="width:'+w+'%;'+(parc?"opacity:.55":"")+'"></div><div class="meta" style="left:'+mp+'%"></div></div><span class="val">'+r.toFixed(1)+'%'+(parc?" *":"")+'</span></div>');
 }
-function sparkSerie(el, valOf, hotOnRise){
-  // ultimos 18 meses de la serie plana
+function sparkSerie(el, valOf, hotOnRise, tipOf){
+  // ultimos 18 meses de la serie plana. tipOf(anio,mes) -> HTML del tooltip (pesos, %, etc.)
   const last=FLAT.slice(-18);
   const vals=last.map(([a,m])=>valOf([[a,m]]));
   const mx=Math.max(...vals,1);
-  el.innerHTML='<div class="spark">'+vals.map((v,idx)=>{
+  const barras=vals.map((v,idx)=>{
     let hot=false; if(hotOnRise&&idx>=2){hot=vals[idx]>vals[idx-1]&&vals[idx-1]>vals[idx-2];}
-    return '<i class="'+(hot?"hot":"")+'" style="height:'+Math.max(3,Math.round(v/mx*100))+'%"></i>';}).join("")+'</div>'+
-    '<div style="font-size:11px;color:var(--sub)">últimos 18 meses'+(hotOnRise?" (rojo = 3 meses subiendo)":"")+'</div>';
+    return '<i class="'+(hot?"hot":"")+'" style="height:'+Math.max(3,Math.round(v/mx*100))+'%"></i>';}).join("");
+  el.innerHTML='<div class="sparkwrap"><div class="sparktip"></div><div class="spark">'+barras+'</div></div>'+
+    '<div style="font-size:11px;color:var(--sub)">últimos 18 meses'+(hotOnRise?" (rojo = 3 meses subiendo)":"")+
+    (tipOf?" · toca o pasa el mouse por una barra para ver el mes":"")+'</div>';
+  if(!tipOf) return;
+  const wrap=el.querySelector(".sparkwrap"), sp=el.querySelector(".spark"), tip=el.querySelector(".sparktip");
+  const bs=[...sp.querySelectorAll("i")];
+  function sel(idx){
+    if(idx==null){ sp.classList.remove("act"); tip.classList.remove("on"); bs.forEach(b=>b.classList.remove("sel")); return; }
+    sp.classList.add("act"); bs.forEach((b,i)=>b.classList.toggle("sel", i===idx));
+    const a=last[idx][0], m=last[idx][1];
+    tip.innerHTML=tipOf(a,m); tip.classList.add("on");
+    const W=wrap.clientWidth, tw=tip.offsetWidth;          // centra en la barra, sin salirse de la tarjeta
+    let x=(idx+0.5)*(W/bs.length);
+    tip.style.left=Math.max(tw/2, Math.min(W-tw/2, x))+"px";
+  }
+  const idxDe=e=>{const r=sp.getBoundingClientRect();
+    return Math.max(0, Math.min(bs.length-1, Math.floor((e.clientX-r.left)/(r.width/bs.length))));};
+  sp.addEventListener("mousemove", e=>sel(idxDe(e)));      // PC: pasar el mouse
+  sp.addEventListener("mouseleave", ()=>sel(null));
+  sp.addEventListener("click", e=>sel(idxDe(e)));          // celular: tocar
 }
+// celular: al tocar fuera de una gráfica, se cierra el globito
+document.addEventListener("click", e=>{ if(e.target.closest(".spark")) return;
+  document.querySelectorAll(".spark.act").forEach(s=>{s.classList.remove("act");
+    s.querySelectorAll("i.sel").forEach(b=>b.classList.remove("sel"));});
+  document.querySelectorAll(".sparktip.on").forEach(t=>t.classList.remove("on")); });
 render();
 </script>
 
