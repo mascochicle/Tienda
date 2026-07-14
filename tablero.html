@@ -84,8 +84,8 @@ footer a{color:var(--acc);}
   <div class="filtros" id="fMes"><span class="lbl">Mes</span></div>
   <div class="kpis">
     <div class="kpi"><div class="l" id="kvL">Venta</div><div class="v" id="kv">—</div><div class="d" id="kvD"></div></div>
-    <div class="kpi"><div class="l" id="koL">Utilidad operativa</div><div class="v" id="ko">—</div><div class="d" id="koD"></div></div>
     <div class="kpi"><div class="l" id="kgL">Utilidad bruta</div><div class="v" id="kg">—</div><div class="d" id="kgD"></div></div>
+    <div class="kpi"><div class="l" id="koL">Utilidad operativa</div><div class="v" id="ko">—</div><div class="d" id="koD"></div></div>
     <div class="kpi"><div class="l">Inventario actual</div><div class="v">$377,133</div><div class="d">84% del óptimo $450k</div></div>
   </div>
   <div class="card">
@@ -94,9 +94,14 @@ footer a{color:var(--acc);}
     <p class="nota" id="nMeses"></p>
   </div>
   <div class="card">
-    <h2 id="tSub">Top subgrupos</h2>
-    <table id="tabSub"><tr><th>Subgrupo</th><th>Venta</th><th>% vta</th><th>Ganancia</th><th>% gan</th><th id="thAA">vs 2025</th></tr></table>
-    <p class="nota">Ganancia = venta − costo de la mercancía (antes de gastos). «vs año pasado» compara la venta contra el mismo periodo del año anterior.</p>
+    <h2 id="tSub">Top subgrupos · venta</h2>
+    <table id="tabSub"><tr><th>Subgrupo</th><th id="thV1">—</th><th id="thP1">%</th><th id="thV2">—</th><th id="thP2">%</th><th id="thAA">vs</th></tr></table>
+    <p class="nota" id="nSub"></p>
+  </div>
+  <div class="card">
+    <h2 id="tGan">Top subgrupos · ganancia</h2>
+    <table id="tabGan"><tr><th>Subgrupo</th><th id="thG1">—</th><th id="thQ1">%</th><th id="thG2">—</th><th id="thQ2">%</th><th id="thAG">vs</th></tr></table>
+    <p class="nota" id="nGan"></p>
   </div>
   <footer>Minisuper "X" · se actualiza con cada BAJACH · <a href="ventas.html">Ventas por subgrupo</a> · <a href="rotacion.html">Rotación</a> · <a href="compras.html">Compras urgentes</a></footer>
 </div>
@@ -168,27 +173,53 @@ function render(){
     }
     $("nMeses").textContent=("op = utilidad operativa del mes."+(+selA===DATA.parcial.y?" * "+MES[DATA.parcial.m]+" va parcial (al día "+DATA.parcial.d+").":""));
   }
-  // top subgrupos
-  const aaPrev=String(+selA-1); const hayPrev=!todosA&&!!DATA.anios[aaPrev];
-  $("thAA").textContent = todosA ? "—" : "vs "+aaPrev;
-  $("tSub").textContent="Top subgrupos · "+per;
-  const tb=$("tabSub"); tb.querySelectorAll("tr:not(:first-child)").forEach(r=>r.remove());
-  let curCmp=null, prevAgg=null, cmpParc=false;
+  // ---- Top subgrupos: DOS tablas (venta y ganancia), pedido de Marco jul-2026 ----
+  // Las 2 columnas de año se comparan sobre los MISMOS MESES (los cerrados en ambos años); si no,
+  // estariamos comparando 12 meses de 2025 contra 6 y medio de 2026.
+  const aaPrev=String(+selA-1), hayPrev=!todosA && !!DATA.anios[aaPrev];
+  let msCmp=[], cmpParc=false;
   if(hayPrev){
-    let msCmp=mesesSel(selA).filter(m=>!esParcial(selA,m)); if(!msCmp.length){msCmp=mesesSel(selA);cmpParc=true;}
-    const ag=(a,mm)=>{let sub={}; mm.forEach(m=>{if(!DATA.anios[a][m])return; for(const s in DATA.anios[a][m].sub){if(!sub[s])sub[s]=0; sub[s]+=DATA.anios[a][m].sub[s][0];}}); return sub;};
-    curCmp=ag(selA,msCmp); prevAgg=ag(aaPrev,msCmp);
+    msCmp=mesesSel(selA).filter(m=>!esParcial(selA,m));
+    if(!msCmp.length){ msCmp=mesesSel(selA); cmpParc=true; }   // solo hay mes parcial: se compara y se marca con *
   }
-  Object.entries(sel.sub).sort((a,b)=>b[1][0]-a[1][0]).slice(0,10).forEach(([s,vg])=>{
-    let aa="—";
-    if(hayPrev){const pv=prevAgg[s]||0, cv=curCmp[s]||0;
-      if(pv>0&&cv>0){const d=(cv-pv)/pv*100; const cls=d>2?"t-up":(d<-2?"t-dn":"t-fl"); const arr=d>2?"▲":(d<-2?"▼":"≈");
-        aa='<span class="tag '+cls+'">'+arr+" "+(d>0?"+":"")+d.toFixed(0)+"%"+(cmpParc?"*":"")+'</span>';}}
-    const tr=document.createElement("tr");
-    tr.innerHTML="<td>"+s+"</td><td>"+fmtk(vg[0])+"</td><td>"+(sel.v?(vg[0]/sel.v*100).toFixed(1):0)+"%</td><td>"+
-      fmtk(vg[1])+"</td><td>"+(sel.g?(vg[1]/sel.g*100).toFixed(1):0)+"%</td><td>"+aa+"</td>";
-    tb.appendChild(tr);
-  });
+  const agg=(a,mm,ix)=>{const o={}; mm.forEach(m=>{const D=DATA.anios[a]&&DATA.anios[a][m]; if(!D)return;
+      for(const s in D.sub) o[s]=(o[s]||0)+D.sub[s][ix];}); return o;};
+  const suma=o=>{let t=0; for(const s in o)t+=o[s]; return t;};
+  const rango = msCmp.length ? (MES[+msCmp[0]]+(msCmp.length>1?"–"+MES[+msCmp[msCmp.length-1]]:"")) : "";
+
+  function pintaSub(tabId, ths, ix, titId, titTxt){
+    $(ths[0]).textContent = hayPrev ? aaPrev : "—";
+    $(ths[2]).textContent = hayPrev ? selA : (todosA ? "Total" : selA);
+    $(ths[4]).textContent = hayPrev ? ("vs "+aaPrev) : "—";
+    $(titId).textContent = titTxt+" · "+(hayPrev ? (rango+" "+aaPrev+" vs "+selA+(cmpParc?" *":"")) : per);
+    const tb=$(tabId); tb.querySelectorAll("tr:not(:first-child)").forEach(r=>r.remove());
+    let cur={}, prev={}, tc=0, tp=0;
+    if(hayPrev){ cur=agg(selA,msCmp,ix); prev=agg(aaPrev,msCmp,ix); tc=suma(cur); tp=suma(prev); }
+    else { for(const s in sel.sub) cur[s]=sel.sub[s][ix]; tc=(ix===0?sel.v:sel.g); }
+    Object.entries(cur).sort((a,b)=>b[1]-a[1]).slice(0,10).forEach(([s,cv])=>{
+      const pv=prev[s]||0;
+      let aa="—";
+      if(hayPrev&&pv>0&&cv>0){
+        const d=(cv-pv)/pv*100, cls=d>2?"t-up":(d<-2?"t-dn":"t-fl"), ar=d>2?"▲":(d<-2?"▼":"≈");
+        aa='<span class="tag '+cls+'">'+ar+" "+(d>0?"+":"")+d.toFixed(0)+"%"+(cmpParc?"*":"")+'</span>';
+      }
+      const tr=document.createElement("tr");
+      tr.innerHTML="<td>"+s+"</td>"+
+        "<td>"+(hayPrev?fmtk(pv):"—")+"</td>"+
+        "<td>"+(hayPrev&&tp?(pv/tp*100).toFixed(1)+"%":"—")+"</td>"+
+        "<td>"+fmtk(cv)+"</td>"+
+        "<td>"+(tc?(cv/tc*100).toFixed(1)+"%":"0%")+"</td>"+
+        "<td>"+aa+"</td>";
+      tb.appendChild(tr);
+    });
+  }
+  pintaSub("tabSub",["thV1","thP1","thV2","thP2","thAA"],0,"tSub","Top subgrupos · venta");
+  pintaSub("tabGan",["thG1","thQ1","thG2","thQ2","thAG"],1,"tGan","Top subgrupos · ganancia");
+  const _cmp = hayPrev
+    ? ("Ambos años sobre los <b>mismos meses</b> ("+rango+(cmpParc?", va parcial *":", ya cerrados")+"), para que la comparación sea justa. «%» = qué tajada de ese año se lleva el subgrupo.")
+    : "Selecciona un año para comparar contra el anterior.";
+  $("nSub").innerHTML = _cmp+" «vs» compara la <b>venta</b>.";
+  $("nGan").innerHTML = "<b>«Ganancia» = venta − costo de la mercancía = utilidad BRUTA</b>, la de cada subgrupo. <b>NO es la operativa ni la neta:</b> los gastos (nómina, luz, renta, comisiones) son de la tienda entera y no se pueden repartir por subgrupo. "+_cmp+" «vs» compara la <b>ganancia</b>.";
 }
 render();
 </script>
