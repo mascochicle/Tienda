@@ -32,13 +32,24 @@ body{background:var(--bg);color:var(--ink);font-family:-apple-system,"Segoe UI",
 .wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px;}
 header h1{font-size:21px;margin:0;font-weight:650;}
 header p{margin:6px 0 0;color:var(--sub);font-size:13.5px;}
-a.tarjeta{display:block;background:var(--card);border:1px dashed var(--line);border-radius:10px;padding:14px 16px;text-decoration:none;color:var(--ink);}
+a.tarjeta{display:block;background:var(--card);border:1px dashed var(--line);border-radius:10px;padding:14px 16px;text-decoration:none;color:var(--ink);position:relative;}
 a.tarjeta:hover{border-color:var(--acc);border-style:solid;}
 a.tarjeta b{color:var(--acc);font-size:15px;}
 a.tarjeta b::after{content:" 🔒";font-size:11px;}
 a.tarjeta span{display:block;font-size:13px;color:var(--sub);margin-top:3px;}
 .aviso{background:var(--acc-soft);border-radius:10px;padding:11px 14px;font-size:12.5px;color:var(--ink);}
 footer{font-size:11.5px;color:var(--sub);text-align:center;}
+/* ---- reordenar (arrastrar) ---- */
+.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.rbtn{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:8px 14px;font-size:13.5px;font-weight:650;cursor:pointer;color:var(--ink);white-space:nowrap;}
+.rbtn.on{background:var(--acc);border-color:var(--acc);color:#fff;}
+.rhint{font-size:12px;color:var(--sub);margin:0;flex:1;min-width:150px;}
+#tools{display:flex;flex-direction:column;gap:14px;}
+#tools.reorder a.tarjeta{border-style:solid;border-color:var(--acc);cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-user-drag:none;padding-left:46px;}
+a.tarjeta .grip{display:none;position:absolute;left:12px;top:0;bottom:0;align-items:center;font-size:20px;color:var(--sub);font-style:normal;}
+#tools.reorder a.tarjeta .grip{display:flex;}
+a.tarjeta.dragging{opacity:.9;box-shadow:0 10px 26px rgba(0,0,0,.28);border-color:var(--acc);border-style:solid;}
+.ph{border:2px dashed var(--acc);border-radius:10px;background:var(--acc-soft);box-sizing:border-box;}
 </style>
 <div class="wrap">
   <header>
@@ -48,15 +59,78 @@ footer{font-size:11.5px;color:var(--sub);text-align:center;}
 
   <div class="aviso"><b>Los socios no ven nada de esto.</b> Estas páginas no viven en el sitio: son privadas y piden tu login. El link por sí solo no revela ningún dato.</div>
 
-  <a class="tarjeta" href="https://claude.ai/code/artifact/24fdced5-4230-4a54-9faf-3469d1b3af51" target="_blank" rel="noopener noreferrer"><b>📌 Pendientes</b><span>Tu bitácora: lo que falta decidir o atacar, ordenado por lo que más dinero mueve. Es la misma lista que lleva Claude — si le preguntas «¿qué pendientes tengo?», te lee justo esta.</span></a>
-  <a class="tarjeta" href="https://claude.ai/code/artifact/2d0d0e9e-93ea-4a01-9482-a74c83526cf2" target="_blank" rel="noopener noreferrer"><b>🚨 Días en cero</b><span>Lo que vuela y aun así tuvo días sin vender NI UNA pieza: no había. Con las piezas que no alcanzaron y lo que se dejó de ganar, a 3 meses, 6 meses o 1 año. Revísalo antes de hacer el pedido.</span></a>
-  <a class="tarjeta" href="https://claude.ai/code/artifact/2893acf1-660a-4e2e-b19d-21bbe59b49c3" target="_blank" rel="noopener noreferrer"><b>💰 Reinvertir / Liberar</b><span>Dónde conviene meter dinero (por ganancia) y dónde está atorado tu capital, por subgrupo colapsable.</span></a>
-  <a class="tarjeta" href="https://claude.ai/code/artifact/987b5434-3da5-4045-bcf7-352feba66595" target="_blank" rel="noopener noreferrer"><b>🧮 Calculadora de compra</b><span>¿En cuánto se recupera una compra por descuento? Escribe lo que te ofrecen y te dice si conviene.</span></a>
-  <a class="tarjeta" href="https://claude.ai/code/artifact/85671dd4-d0b4-4b47-90b8-2ad8e3b1b5ba" target="_blank" rel="noopener noreferrer"><b>🔍 Auditoría de compras</b><span>El lado del proveedor: ¿entró al sistema todo lo que se compró en efectivo, y al costo correcto? Con el registro día por día.</span></a>
-  <a class="tarjeta" href="https://claude.ai/code/artifact/beb28756-5018-406a-a59d-248855de100a" target="_blank" rel="noopener noreferrer"><b>🏷️ Auditoría de precios</b><span>El lado del cliente: rastrea qué subidas de precio ya aplicaste (de las presentaciones), detecta cualquier cambio de precio, y caza nuevos productos por debajo de su familia.</span></a>
+  <div class="bar">
+    <button class="rbtn" id="rbtn" onclick="toggleReorder()">🔀 Reordenar</button>
+    <p class="rhint" id="rhint">Toca «Reordenar» para arrastrar y acomodar tus herramientas a tu gusto.</p>
+  </div>
 
-  <footer>Minisuper "X" · privado · se actualiza con cada BAJACH</footer>
+  <div id="tools">
+    <a class="tarjeta" data-id="pend" href="https://claude.ai/code/artifact/24fdced5-4230-4a54-9faf-3469d1b3af51" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>📌 Pendientes</b><span>Tu bitácora: lo que falta decidir o atacar, ordenado por lo que más dinero mueve. Es la misma lista que lleva Claude — si le preguntas «¿qué pendientes tengo?», te lee justo esta.</span></a>
+    <a class="tarjeta" data-id="cero" href="https://claude.ai/code/artifact/2d0d0e9e-93ea-4a01-9482-a74c83526cf2" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🚨 Días en cero</b><span>Lo que vuela y aun así tuvo días sin vender NI UNA pieza: no había. Con las piezas que no alcanzaron y lo que se dejó de ganar, a 3 meses, 6 meses o 1 año. Revísalo antes de hacer el pedido.</span></a>
+    <a class="tarjeta" data-id="reinv" href="https://claude.ai/code/artifact/2893acf1-660a-4e2e-b19d-21bbe59b49c3" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>💰 Reinvertir / Liberar</b><span>Dónde conviene meter dinero (por ganancia) y dónde está atorado tu capital, por subgrupo colapsable.</span></a>
+    <a class="tarjeta" data-id="calc" href="https://claude.ai/code/artifact/987b5434-3da5-4045-bcf7-352feba66595" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🧮 Calculadora de compra</b><span>¿En cuánto se recupera una compra por descuento? Escribe lo que te ofrecen y te dice si conviene.</span></a>
+    <a class="tarjeta" data-id="audc" href="https://claude.ai/code/artifact/85671dd4-d0b4-4b47-90b8-2ad8e3b1b5ba" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🔍 Auditoría de compras</b><span>El lado del proveedor: ¿entró al sistema todo lo que se compró en efectivo, y al costo correcto? Con el registro día por día.</span></a>
+    <a class="tarjeta" data-id="audp" href="https://claude.ai/code/artifact/beb28756-5018-406a-a59d-248855de100a" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🏷️ Auditoría de precios</b><span>El lado del cliente: rastrea qué subidas de precio ya aplicaste (de las presentaciones), detecta cualquier cambio de precio, y caza nuevos productos por debajo de su familia.</span></a>
+  </div>
+
+  <footer>Minisuper "X" · privado · se actualiza con cada BAJACH · el orden que elijas se guarda en este dispositivo</footer>
 </div>
+<script>
+(function(){
+  var tools=document.getElementById("tools"), KEY="herrOrder_v1", reorder=false;
+  // aplicar orden guardado en este dispositivo
+  try{
+    var saved=JSON.parse(localStorage.getItem(KEY)||"null");
+    if(saved&&saved.length) saved.forEach(function(id){ var el=tools.querySelector('a[data-id="'+id+'"]'); if(el) tools.appendChild(el); });
+  }catch(e){}
+  function saveOrder(){
+    try{ localStorage.setItem(KEY, JSON.stringify([].map.call(tools.querySelectorAll("a.tarjeta"), function(a){return a.dataset.id;}))); }catch(e){}
+  }
+  window.toggleReorder=function(){
+    reorder=!reorder;
+    tools.classList.toggle("reorder", reorder);
+    var b=document.getElementById("rbtn"), h=document.getElementById("rhint");
+    b.classList.toggle("on", reorder);
+    b.textContent = reorder ? "✓ Listo" : "🔀 Reordenar";
+    h.textContent = reorder ? "Arrastra las tarjetas por el ⠿ para acomodarlas. Toca «Listo» al terminar." : "Toca «Reordenar» para arrastrar y acomodar tus herramientas a tu gusto.";
+  };
+  // en modo reordenar, un toque NO abre el link
+  tools.addEventListener("click", function(e){ if(reorder) e.preventDefault(); }, true);
+  // arrastre con pointer events (celular + escritorio)
+  var drag=null, ph=null, offY=0;
+  tools.addEventListener("pointerdown", function(e){
+    if(!reorder) return;
+    var card=e.target.closest("a.tarjeta"); if(!card) return;
+    e.preventDefault();
+    var r=card.getBoundingClientRect();
+    drag=card; offY=e.clientY-r.top;
+    ph=document.createElement("div"); ph.className="ph"; ph.style.height=r.height+"px";
+    card.parentNode.insertBefore(ph, card);
+    card.classList.add("dragging");
+    card.style.position="fixed"; card.style.width=r.width+"px"; card.style.left=r.left+"px";
+    card.style.top=(e.clientY-offY)+"px"; card.style.margin="0"; card.style.zIndex="30";
+    try{ card.setPointerCapture(e.pointerId); }catch(_){}
+  });
+  tools.addEventListener("pointermove", function(e){
+    if(!drag) return;
+    e.preventDefault();
+    drag.style.top=(e.clientY-offY)+"px";
+    var others=[].slice.call(tools.querySelectorAll("a.tarjeta:not(.dragging)")), after=null;
+    others.forEach(function(c){ var r=c.getBoundingClientRect(); if(e.clientY>r.top+r.height/2) after=c; });
+    if(after) tools.insertBefore(ph, after.nextSibling);
+    else if(others.length) tools.insertBefore(ph, others[0]);
+  });
+  function endDrag(){
+    if(!drag) return;
+    drag.classList.remove("dragging");
+    drag.style.position=""; drag.style.width=""; drag.style.left=""; drag.style.top=""; drag.style.margin=""; drag.style.zIndex="";
+    tools.insertBefore(drag, ph);
+    ph.remove(); ph=null; drag=null; saveOrder();
+  }
+  tools.addEventListener("pointerup", endDrag);
+  tools.addEventListener("pointercancel", endDrag);
+})();
+</script>
 
 </body>
 </html>
