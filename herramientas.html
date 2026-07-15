@@ -8,17 +8,59 @@
 <title>Herramientas del dueño — Tienda</title>
 </head>
 <body>
-<nav style="max-width:560px;margin:0 auto 14px;display:flex;gap:13px;font-size:13px;font-weight:600;flex-wrap:wrap;">
-<a href="index.html" style="color:var(--acc);text-decoration:none;">Inicio</a>
-<a href="tablero.html" style="color:var(--acc);text-decoration:none;">General</a>
-<a href="ventas.html" style="color:var(--acc);text-decoration:none;">Ventas</a>
-<a href="margen.html" style="color:var(--acc);text-decoration:none;">Margen</a>
-<a href="gastos.html" style="color:var(--acc);text-decoration:none;">Gastos</a>
-<a href="compras.html" style="color:var(--acc);text-decoration:none;">Compras</a>
-<a href="rotacion.html" style="color:var(--acc);text-decoration:none;">Rotación</a>
-<a href="equilibrio.html" style="color:var(--acc);text-decoration:none;">Equilibrio</a>
-<a href="herramientas.html" style="color:var(--acc);text-decoration:none;">🔒 Herramientas</a>
+<style>
+#nav{max-width:560px;margin:0 auto 14px;display:flex;gap:13px;font-size:13px;font-weight:600;flex-wrap:wrap;align-items:center;}
+#nav a{color:var(--acc);text-decoration:none;}
+#nav.reord a{cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none;outline:1px dashed var(--acc);outline-offset:2px;border-radius:4px;}
+#nav a.ndrag{opacity:.85;}
+#navph{display:inline-block;border-radius:4px;background:var(--acc);opacity:.22;}
+#navrb{cursor:pointer;color:var(--sub,#8a8578);opacity:.5;user-select:none;font-size:14px;line-height:1;margin-left:auto;padding:2px 3px;}
+#navrb.on{color:var(--acc);opacity:1;}
+</style>
+<nav id="nav">
+<a data-nid="inicio" href="index.html">Inicio</a>
+<a data-nid="general" href="tablero.html">General</a>
+<a data-nid="ventas" href="ventas.html">Ventas</a>
+<a data-nid="margen" href="margen.html">Margen</a>
+<a data-nid="gastos" href="gastos.html">Gastos</a>
+<a data-nid="compras" href="compras.html">Compras</a>
+<a data-nid="rotacion" href="rotacion.html">Rotación</a>
+<a data-nid="equilibrio" href="equilibrio.html">Equilibrio</a>
+<a data-nid="herramientas" href="herramientas.html">🔒 Herramientas</a>
+<span id="navrb" title="Reordenar menú">⠿</span>
 </nav>
+<script>
+(function(){
+  var nav=document.getElementById("nav"); if(!nav) return;
+  var rb=document.getElementById("navrb"), KEY="navOrder_v1", reord=false;
+  function links(){ return [].slice.call(nav.querySelectorAll("a[data-nid]")); }
+  try{ var s=JSON.parse(localStorage.getItem(KEY)||"null"); if(s&&s.length) s.forEach(function(id){ var a=nav.querySelector('a[data-nid="'+id+'"]'); if(a) nav.insertBefore(a, rb); }); }catch(e){}
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(links().map(function(a){return a.dataset.nid;}))); }catch(e){} }
+  rb.addEventListener("click", function(){ reord=!reord; nav.classList.toggle("reord",reord); rb.classList.toggle("on",reord); rb.title=reord?"Listo (toca para terminar)":"Reordenar menú"; });
+  nav.addEventListener("click", function(e){ if(reord && e.target.closest("a[data-nid]")) e.preventDefault(); }, true);
+  var drag=null, ph=null, ox=0, oy=0;
+  nav.addEventListener("pointerdown", function(e){
+    if(!reord) return; var a=e.target.closest("a[data-nid]"); if(!a) return; e.preventDefault();
+    var r=a.getBoundingClientRect(); drag=a; ox=e.clientX-r.left; oy=e.clientY-r.top;
+    ph=document.createElement("span"); ph.id="navph"; ph.style.width=r.width+"px"; ph.style.height=r.height+"px";
+    a.parentNode.insertBefore(ph, a); a.classList.add("ndrag");
+    a.style.position="fixed"; a.style.left=r.left+"px"; a.style.top=r.top+"px"; a.style.width=r.width+"px"; a.style.zIndex="60"; a.style.margin="0";
+    try{ a.setPointerCapture(e.pointerId); }catch(_){}
+  });
+  nav.addEventListener("pointermove", function(e){
+    if(!drag) return; e.preventDefault();
+    drag.style.left=(e.clientX-ox)+"px"; drag.style.top=(e.clientY-oy)+"px";
+    var best=null,bd=1e9,after=false;
+    links().forEach(function(a){ if(a===drag) return; var r=a.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+      var d=Math.abs(e.clientY-cy)*3+Math.abs(e.clientX-cx); if(d<bd){bd=d;best=a;after=e.clientX>cx;} });
+    if(best) nav.insertBefore(ph, after?best.nextSibling:best);
+  });
+  function end(){ if(!drag) return; drag.classList.remove("ndrag");
+    drag.style.position="";drag.style.left="";drag.style.top="";drag.style.width="";drag.style.zIndex="";drag.style.margin="";
+    nav.insertBefore(drag, ph); ph.remove(); ph=null; drag=null; save(); }
+  nav.addEventListener("pointerup", end); nav.addEventListener("pointercancel", end);
+})();
+</script>
 <style>
 :root{
   --bg:#f7f6f2; --card:#fffefb; --ink:#211f1a; --sub:#6d675c; --line:#e4e1d8;
@@ -40,10 +82,10 @@ a.tarjeta span{display:block;font-size:13px;color:var(--sub);margin-top:3px;}
 .aviso{background:var(--acc-soft);border-radius:10px;padding:11px 14px;font-size:12.5px;color:var(--ink);}
 footer{font-size:11.5px;color:var(--sub);text-align:center;}
 /* ---- reordenar (arrastrar) ---- */
-.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-.rbtn{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:8px 14px;font-size:13.5px;font-weight:650;cursor:pointer;color:var(--ink);white-space:nowrap;}
-.rbtn.on{background:var(--acc);border-color:var(--acc);color:#fff;}
-.rhint{font-size:12px;color:var(--sub);margin:0;flex:1;min-width:150px;}
+.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
+.rbtn{background:none;border:none;color:var(--sub);opacity:.65;font-size:12.5px;font-weight:600;cursor:pointer;user-select:none;padding:2px 4px;white-space:nowrap;font-family:inherit;}
+.rbtn.on{color:var(--acc);opacity:1;}
+.rhint{font-size:11.5px;color:var(--sub);margin:0;}
 #tools{display:flex;flex-direction:column;gap:14px;}
 #tools.reorder a.tarjeta{border-style:solid;border-color:var(--acc);cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-user-drag:none;padding-left:46px;}
 a.tarjeta .grip{display:none;position:absolute;left:12px;top:0;bottom:0;align-items:center;font-size:20px;color:var(--sub);font-style:normal;}
@@ -60,8 +102,8 @@ a.tarjeta.dragging{opacity:.9;box-shadow:0 10px 26px rgba(0,0,0,.28);border-colo
   <div class="aviso"><b>Los socios no ven nada de esto.</b> Estas páginas no viven en el sitio: son privadas y piden tu login. El link por sí solo no revela ningún dato.</div>
 
   <div class="bar">
-    <button class="rbtn" id="rbtn" onclick="toggleReorder()">🔀 Reordenar</button>
-    <p class="rhint" id="rhint">Toca «Reordenar» para arrastrar y acomodar tus herramientas a tu gusto.</p>
+    <span class="rhint" id="rhint" style="display:none">arrastra por el ⠿ · toca «listo» al terminar</span>
+    <button class="rbtn" id="rbtn" onclick="toggleReorder()">⠿ reordenar</button>
   </div>
 
   <div id="tools">
@@ -91,8 +133,8 @@ a.tarjeta.dragging{opacity:.9;box-shadow:0 10px 26px rgba(0,0,0,.28);border-colo
     tools.classList.toggle("reorder", reorder);
     var b=document.getElementById("rbtn"), h=document.getElementById("rhint");
     b.classList.toggle("on", reorder);
-    b.textContent = reorder ? "✓ Listo" : "🔀 Reordenar";
-    h.textContent = reorder ? "Arrastra las tarjetas por el ⠿ para acomodarlas. Toca «Listo» al terminar." : "Toca «Reordenar» para arrastrar y acomodar tus herramientas a tu gusto.";
+    b.textContent = reorder ? "✓ listo" : "⠿ reordenar";
+    h.style.display = reorder ? "inline" : "none";
   };
   // en modo reordenar, un toque NO abre el link
   tools.addEventListener("click", function(e){ if(reorder) e.preventDefault(); }, true);

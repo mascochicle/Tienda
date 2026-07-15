@@ -8,17 +8,59 @@
 <title>General — Tienda</title>
 </head>
 <body>
-<nav style="max-width:560px;margin:0 auto 14px;display:flex;gap:13px;font-size:13px;font-weight:600;flex-wrap:wrap;">
-<a href="index.html" style="color:var(--acc);text-decoration:none;">Inicio</a>
-<a href="tablero.html" style="color:var(--acc);text-decoration:none;">General</a>
-<a href="ventas.html" style="color:var(--acc);text-decoration:none;">Ventas</a>
-<a href="margen.html" style="color:var(--acc);text-decoration:none;">Margen</a>
-<a href="gastos.html" style="color:var(--acc);text-decoration:none;">Gastos</a>
-<a href="compras.html" style="color:var(--acc);text-decoration:none;">Compras</a>
-<a href="rotacion.html" style="color:var(--acc);text-decoration:none;">Rotación</a>
-<a href="equilibrio.html" style="color:var(--acc);text-decoration:none;">Equilibrio</a>
-<a href="herramientas.html" style="color:var(--acc);text-decoration:none;">🔒 Herramientas</a>
+<style>
+#nav{max-width:560px;margin:0 auto 14px;display:flex;gap:13px;font-size:13px;font-weight:600;flex-wrap:wrap;align-items:center;}
+#nav a{color:var(--acc);text-decoration:none;}
+#nav.reord a{cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none;outline:1px dashed var(--acc);outline-offset:2px;border-radius:4px;}
+#nav a.ndrag{opacity:.85;}
+#navph{display:inline-block;border-radius:4px;background:var(--acc);opacity:.22;}
+#navrb{cursor:pointer;color:var(--sub,#8a8578);opacity:.5;user-select:none;font-size:14px;line-height:1;margin-left:auto;padding:2px 3px;}
+#navrb.on{color:var(--acc);opacity:1;}
+</style>
+<nav id="nav">
+<a data-nid="inicio" href="index.html">Inicio</a>
+<a data-nid="general" href="tablero.html">General</a>
+<a data-nid="ventas" href="ventas.html">Ventas</a>
+<a data-nid="margen" href="margen.html">Margen</a>
+<a data-nid="gastos" href="gastos.html">Gastos</a>
+<a data-nid="compras" href="compras.html">Compras</a>
+<a data-nid="rotacion" href="rotacion.html">Rotación</a>
+<a data-nid="equilibrio" href="equilibrio.html">Equilibrio</a>
+<a data-nid="herramientas" href="herramientas.html">🔒 Herramientas</a>
+<span id="navrb" title="Reordenar menú">⠿</span>
 </nav>
+<script>
+(function(){
+  var nav=document.getElementById("nav"); if(!nav) return;
+  var rb=document.getElementById("navrb"), KEY="navOrder_v1", reord=false;
+  function links(){ return [].slice.call(nav.querySelectorAll("a[data-nid]")); }
+  try{ var s=JSON.parse(localStorage.getItem(KEY)||"null"); if(s&&s.length) s.forEach(function(id){ var a=nav.querySelector('a[data-nid="'+id+'"]'); if(a) nav.insertBefore(a, rb); }); }catch(e){}
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(links().map(function(a){return a.dataset.nid;}))); }catch(e){} }
+  rb.addEventListener("click", function(){ reord=!reord; nav.classList.toggle("reord",reord); rb.classList.toggle("on",reord); rb.title=reord?"Listo (toca para terminar)":"Reordenar menú"; });
+  nav.addEventListener("click", function(e){ if(reord && e.target.closest("a[data-nid]")) e.preventDefault(); }, true);
+  var drag=null, ph=null, ox=0, oy=0;
+  nav.addEventListener("pointerdown", function(e){
+    if(!reord) return; var a=e.target.closest("a[data-nid]"); if(!a) return; e.preventDefault();
+    var r=a.getBoundingClientRect(); drag=a; ox=e.clientX-r.left; oy=e.clientY-r.top;
+    ph=document.createElement("span"); ph.id="navph"; ph.style.width=r.width+"px"; ph.style.height=r.height+"px";
+    a.parentNode.insertBefore(ph, a); a.classList.add("ndrag");
+    a.style.position="fixed"; a.style.left=r.left+"px"; a.style.top=r.top+"px"; a.style.width=r.width+"px"; a.style.zIndex="60"; a.style.margin="0";
+    try{ a.setPointerCapture(e.pointerId); }catch(_){}
+  });
+  nav.addEventListener("pointermove", function(e){
+    if(!drag) return; e.preventDefault();
+    drag.style.left=(e.clientX-ox)+"px"; drag.style.top=(e.clientY-oy)+"px";
+    var best=null,bd=1e9,after=false;
+    links().forEach(function(a){ if(a===drag) return; var r=a.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+      var d=Math.abs(e.clientY-cy)*3+Math.abs(e.clientX-cx); if(d<bd){bd=d;best=a;after=e.clientX>cx;} });
+    if(best) nav.insertBefore(ph, after?best.nextSibling:best);
+  });
+  function end(){ if(!drag) return; drag.classList.remove("ndrag");
+    drag.style.position="";drag.style.left="";drag.style.top="";drag.style.width="";drag.style.zIndex="";drag.style.margin="";
+    nav.insertBefore(drag, ph); ph.remove(); ph=null; drag=null; save(); }
+  nav.addEventListener("pointerup", end); nav.addEventListener("pointercancel", end);
+})();
+</script>
 <style>
 :root{
   --bg:#f7f6f2; --card:#fffefb; --ink:#211f1a; --sub:#6d675c; --line:#e4e1d8;
