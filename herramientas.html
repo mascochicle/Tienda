@@ -65,19 +65,19 @@ a.tarjeta.dragging{opacity:.9;box-shadow:0 10px 26px rgba(0,0,0,.28);border-colo
   </div>
 
   <div id="tools">
-    <a class="tarjeta" data-id="pend" href="https://claude.ai/code/artifact/24fdced5-4230-4a54-9faf-3469d1b3af51" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>📌 Pendientes</b><span>Tu bitácora: lo que falta decidir o atacar, ordenado por lo que más dinero mueve. Es la misma lista que lleva Claude — si le preguntas «¿qué pendientes tengo?», te lee justo esta.</span></a>
-    <a class="tarjeta" data-id="cero" href="https://claude.ai/code/artifact/2d0d0e9e-93ea-4a01-9482-a74c83526cf2" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🚨 Días en cero</b><span>Lo que vuela y aun así tuvo días sin vender NI UNA pieza: no había. Con las piezas que no alcanzaron y lo que se dejó de ganar, a 3 meses, 6 meses o 1 año. Revísalo antes de hacer el pedido.</span></a>
-    <a class="tarjeta" data-id="reinv" href="https://claude.ai/code/artifact/2893acf1-660a-4e2e-b19d-21bbe59b49c3" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>💰 Reinvertir / Liberar</b><span>Dónde conviene meter dinero (por ganancia) y dónde está atorado tu capital, por subgrupo colapsable.</span></a>
-    <a class="tarjeta" data-id="calc" href="https://claude.ai/code/artifact/987b5434-3da5-4045-bcf7-352feba66595" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🧮 Calculadora de compra</b><span>¿En cuánto se recupera una compra por descuento? Escribe lo que te ofrecen y te dice si conviene.</span></a>
-    <a class="tarjeta" data-id="audc" href="https://claude.ai/code/artifact/85671dd4-d0b4-4b47-90b8-2ad8e3b1b5ba" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🔍 Auditoría de compras</b><span>El lado del proveedor: ¿entró al sistema todo lo que se compró en efectivo, y al costo correcto? Con el registro día por día.</span></a>
     <a class="tarjeta" data-id="audp" href="https://claude.ai/code/artifact/beb28756-5018-406a-a59d-248855de100a" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🏷️ Auditoría de precios</b><span>El lado del cliente: rastrea qué subidas de precio ya aplicaste (de las presentaciones), detecta cualquier cambio de precio, y caza nuevos productos por debajo de su familia.</span></a>
+    <a class="tarjeta" data-id="cero" href="https://claude.ai/code/artifact/2d0d0e9e-93ea-4a01-9482-a74c83526cf2" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🚨 Días en cero</b><span>Lo que vuela y aun así tuvo días sin vender NI UNA pieza: no había. Con las piezas que no alcanzaron y lo que se dejó de ganar, a 3 meses, 6 meses o 1 año. Revísalo antes de hacer el pedido.</span></a>
+    <a class="tarjeta" data-id="audc" href="https://claude.ai/code/artifact/85671dd4-d0b4-4b47-90b8-2ad8e3b1b5ba" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🔍 Auditoría de compras</b><span>El lado del proveedor: ¿entró al sistema todo lo que se compró en efectivo, y al costo correcto? Con el registro día por día.</span></a>
+    <a class="tarjeta" data-id="calc" href="https://claude.ai/code/artifact/987b5434-3da5-4045-bcf7-352feba66595" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🧮 Calculadora de compra</b><span>¿En cuánto se recupera una compra por descuento? Escribe lo que te ofrecen y te dice si conviene.</span></a>
+    <a class="tarjeta" data-id="pend" href="https://claude.ai/code/artifact/24fdced5-4230-4a54-9faf-3469d1b3af51" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>📌 Pendientes</b><span>Tu bitácora: lo que falta decidir o atacar, ordenado por lo que más dinero mueve. Es la misma lista que lleva Claude — si le preguntas «¿qué pendientes tengo?», te lee justo esta.</span></a>
+    <a class="tarjeta" data-id="reinv" href="https://claude.ai/code/artifact/2893acf1-660a-4e2e-b19d-21bbe59b49c3" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>💰 Reinvertir / Liberar</b><span>Dónde conviene meter dinero (por ganancia) y dónde está atorado tu capital, por subgrupo colapsable.</span></a>
   </div>
 
   <footer>Minisuper "X" · privado · se actualiza con cada BAJACH · el orden que elijas se guarda en este dispositivo</footer>
 </div>
 <script>
 (function(){
-  var tools=document.getElementById("tools"), KEY="herrOrder_v1", reorder=false;
+  var tools=document.getElementById("tools"), KEY="herrOrder_v2", reorder=false;
   // aplicar orden guardado en este dispositivo
   try{
     var saved=JSON.parse(localStorage.getItem(KEY)||"null");
