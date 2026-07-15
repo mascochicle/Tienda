@@ -27,7 +27,7 @@
 <a data-nid="rotacion" href="rotacion.html">Rotación</a>
 <a data-nid="equilibrio" href="equilibrio.html">Equilibrio</a>
 <a data-nid="herramientas" href="herramientas.html">🔒 Herramientas</a>
-<span id="navrb" title="Reordenar menú">⠿</span>
+<span id="navrb" title="Reordenar menú">⠿ reordenar</span>
 </nav>
 <script>
 (function(){
@@ -36,7 +36,7 @@
   function links(){ return [].slice.call(nav.querySelectorAll("a[data-nid]")); }
   try{ var s=JSON.parse(localStorage.getItem(KEY)||"null"); if(s&&s.length) s.forEach(function(id){ var a=nav.querySelector('a[data-nid="'+id+'"]'); if(a) nav.insertBefore(a, rb); }); }catch(e){}
   function save(){ try{ localStorage.setItem(KEY, JSON.stringify(links().map(function(a){return a.dataset.nid;}))); }catch(e){} }
-  rb.addEventListener("click", function(){ reord=!reord; nav.classList.toggle("reord",reord); rb.classList.toggle("on",reord); rb.title=reord?"Listo (toca para terminar)":"Reordenar menú"; });
+  rb.addEventListener("click", function(){ reord=!reord; nav.classList.toggle("reord",reord); rb.classList.toggle("on",reord); rb.textContent=reord?"✓ listo":"⠿ reordenar"; rb.title=reord?"Listo (toca para terminar)":"Reordenar menú"; });
   var drag=null, ph=null, ox=0, oy=0, pend=null, sx=0, sy=0, moved=false;
   nav.addEventListener("pointerdown", function(e){
     if(!reord) return; var a=e.target.closest("a[data-nid]"); if(!a) return;
