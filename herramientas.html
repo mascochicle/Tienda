@@ -37,17 +37,20 @@
   try{ var s=JSON.parse(localStorage.getItem(KEY)||"null"); if(s&&s.length) s.forEach(function(id){ var a=nav.querySelector('a[data-nid="'+id+'"]'); if(a) nav.insertBefore(a, rb); }); }catch(e){}
   function save(){ try{ localStorage.setItem(KEY, JSON.stringify(links().map(function(a){return a.dataset.nid;}))); }catch(e){} }
   rb.addEventListener("click", function(){ reord=!reord; nav.classList.toggle("reord",reord); rb.classList.toggle("on",reord); rb.title=reord?"Listo (toca para terminar)":"Reordenar menú"; });
-  nav.addEventListener("click", function(e){ if(reord && e.target.closest("a[data-nid]")) e.preventDefault(); }, true);
-  var drag=null, ph=null, ox=0, oy=0;
+  var drag=null, ph=null, ox=0, oy=0, pend=null, sx=0, sy=0, moved=false;
   nav.addEventListener("pointerdown", function(e){
-    if(!reord) return; var a=e.target.closest("a[data-nid]"); if(!a) return; e.preventDefault();
-    var r=a.getBoundingClientRect(); drag=a; ox=e.clientX-r.left; oy=e.clientY-r.top;
-    ph=document.createElement("span"); ph.id="navph"; ph.style.width=r.width+"px"; ph.style.height=r.height+"px";
-    a.parentNode.insertBefore(ph, a); a.classList.add("ndrag");
-    a.style.position="fixed"; a.style.left=r.left+"px"; a.style.top=r.top+"px"; a.style.width=r.width+"px"; a.style.zIndex="60"; a.style.margin="0";
-    try{ a.setPointerCapture(e.pointerId); }catch(_){}
+    if(!reord) return; var a=e.target.closest("a[data-nid]"); if(!a) return;
+    pend=a; sx=e.clientX; sy=e.clientY; moved=false;
   });
   nav.addEventListener("pointermove", function(e){
+    if(pend && !drag){
+      if(Math.abs(e.clientX-sx)+Math.abs(e.clientY-sy)<8) return;   // UMBRAL: solo un arrastre deliberado reordena (un toque, no)
+      moved=true; var a=pend, r=a.getBoundingClientRect(); drag=a; ox=e.clientX-r.left; oy=e.clientY-r.top;
+      ph=document.createElement("span"); ph.id="navph"; ph.style.width=r.width+"px"; ph.style.height=r.height+"px";
+      a.parentNode.insertBefore(ph, a); a.classList.add("ndrag");
+      a.style.position="fixed"; a.style.left=r.left+"px"; a.style.top=r.top+"px"; a.style.width=r.width+"px"; a.style.zIndex="60"; a.style.margin="0";
+      try{ a.setPointerCapture(e.pointerId); }catch(_){}
+    }
     if(!drag) return; e.preventDefault();
     drag.style.left=(e.clientX-ox)+"px"; drag.style.top=(e.clientY-oy)+"px";
     var best=null,bd=1e9,after=false;
@@ -55,10 +58,11 @@
       var d=Math.abs(e.clientY-cy)*3+Math.abs(e.clientX-cx); if(d<bd){bd=d;best=a;after=e.clientX>cx;} });
     if(best) nav.insertBefore(ph, after?best.nextSibling:best);
   });
-  function end(){ if(!drag) return; drag.classList.remove("ndrag");
+  function end(){ pend=null; if(!drag) return; drag.classList.remove("ndrag");
     drag.style.position="";drag.style.left="";drag.style.top="";drag.style.width="";drag.style.zIndex="";drag.style.margin="";
     nav.insertBefore(drag, ph); ph.remove(); ph=null; drag=null; save(); }
   nav.addEventListener("pointerup", end); nav.addEventListener("pointercancel", end);
+  nav.addEventListener("click", function(e){ if(moved){ e.preventDefault(); e.stopPropagation(); moved=false; } }, true);   // tras un ARRASTRE no navega; un toque SÍ
 })();
 </script>
 <style>
@@ -136,41 +140,36 @@ a.tarjeta.dragging{opacity:.9;box-shadow:0 10px 26px rgba(0,0,0,.28);border-colo
     b.textContent = reorder ? "✓ listo" : "⠿ reordenar";
     h.style.display = reorder ? "inline" : "none";
   };
-  // en modo reordenar, un toque NO abre el link
-  tools.addEventListener("click", function(e){ if(reorder) e.preventDefault(); }, true);
-  // arrastre con pointer events (celular + escritorio)
-  var drag=null, ph=null, offY=0;
+  // arrastre pointer (celular+escritorio): TOCAR abre la herramienta; solo ARRASTRAR (>8px) reordena
+  var drag=null, ph=null, offY=0, pend=null, sy=0, moved=false;
   tools.addEventListener("pointerdown", function(e){
-    if(!reorder) return;
-    var card=e.target.closest("a.tarjeta"); if(!card) return;
-    e.preventDefault();
-    var r=card.getBoundingClientRect();
-    drag=card; offY=e.clientY-r.top;
-    ph=document.createElement("div"); ph.className="ph"; ph.style.height=r.height+"px";
-    card.parentNode.insertBefore(ph, card);
-    card.classList.add("dragging");
-    card.style.position="fixed"; card.style.width=r.width+"px"; card.style.left=r.left+"px";
-    card.style.top=(e.clientY-offY)+"px"; card.style.margin="0"; card.style.zIndex="30";
-    try{ card.setPointerCapture(e.pointerId); }catch(_){}
+    if(!reorder) return; var card=e.target.closest("a.tarjeta"); if(!card) return;
+    pend=card; sy=e.clientY; moved=false;
   });
   tools.addEventListener("pointermove", function(e){
-    if(!drag) return;
-    e.preventDefault();
+    if(pend && !drag){
+      if(Math.abs(e.clientY-sy)<8) return;   // UMBRAL: un toque no reordena, solo un arrastre deliberado
+      moved=true; var card=pend, r=card.getBoundingClientRect(); drag=card; offY=e.clientY-r.top;
+      ph=document.createElement("div"); ph.className="ph"; ph.style.height=r.height+"px";
+      card.parentNode.insertBefore(ph, card); card.classList.add("dragging");
+      card.style.position="fixed"; card.style.width=r.width+"px"; card.style.left=r.left+"px";
+      card.style.top=(e.clientY-offY)+"px"; card.style.margin="0"; card.style.zIndex="30";
+      try{ card.setPointerCapture(e.pointerId); }catch(_){}
+    }
+    if(!drag) return; e.preventDefault();
     drag.style.top=(e.clientY-offY)+"px";
     var others=[].slice.call(tools.querySelectorAll("a.tarjeta:not(.dragging)")), after=null;
     others.forEach(function(c){ var r=c.getBoundingClientRect(); if(e.clientY>r.top+r.height/2) after=c; });
     if(after) tools.insertBefore(ph, after.nextSibling);
     else if(others.length) tools.insertBefore(ph, others[0]);
   });
-  function endDrag(){
-    if(!drag) return;
+  function endDrag(){ pend=null; if(!drag) return;
     drag.classList.remove("dragging");
     drag.style.position=""; drag.style.width=""; drag.style.left=""; drag.style.top=""; drag.style.margin=""; drag.style.zIndex="";
-    tools.insertBefore(drag, ph);
-    ph.remove(); ph=null; drag=null; saveOrder();
+    tools.insertBefore(drag, ph); ph.remove(); ph=null; drag=null; saveOrder();
   }
-  tools.addEventListener("pointerup", endDrag);
-  tools.addEventListener("pointercancel", endDrag);
+  tools.addEventListener("pointerup", endDrag); tools.addEventListener("pointercancel", endDrag);
+  tools.addEventListener("click", function(e){ if(moved){ e.preventDefault(); e.stopPropagation(); moved=false; } }, true);   // tras ARRASTRE no abre; un toque SÍ abre
 })();
 </script>
 
