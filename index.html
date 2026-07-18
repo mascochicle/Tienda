@@ -16,22 +16,23 @@
 #navph{display:inline-block;border-radius:4px;background:var(--acc);opacity:.22;}
 #navrb{cursor:pointer;color:var(--sub,#8a8578);opacity:.5;user-select:none;font-size:14px;line-height:1;margin-left:auto;padding:2px 3px;}
 #navrb.on{color:var(--acc);opacity:1;}
+#navtools{max-width:560px;margin:-4px auto 16px;text-align:center;}
+#navtools a{color:var(--acc);text-decoration:none;font-size:13px;font-weight:600;}
 </style>
 <nav id="nav">
 <a data-nid="inicio" href="index.html">Inicio</a>
 <a data-nid="general" href="tablero.html">General</a>
 <a data-nid="ventas" href="ventas.html">Ventas</a>
 <a data-nid="gastos" href="gastos.html">Gastos</a>
-<a data-nid="compras" href="compras.html">Compras</a>
 <a data-nid="rotacion" href="rotacion.html">Rotación</a>
 <a data-nid="equilibrio" href="equilibrio.html">Equilibrio</a>
-<a data-nid="herramientas" href="herramientas.html">🔒 Herramientas</a>
 <span id="navrb" title="Reordenar menú">⠿ reordenar</span>
 </nav>
+<div id="navtools"><a href="herramientas.html">🔒 Herramientas del dueño</a></div>
 <script>
 (function(){
   var nav=document.getElementById("nav"); if(!nav) return;
-  var rb=document.getElementById("navrb"), KEY="navOrder_v1", reord=false;
+  var rb=document.getElementById("navrb"), KEY="navOrder_v2", reord=false;
   function links(){ return [].slice.call(nav.querySelectorAll("a[data-nid]")); }
   try{ var s=JSON.parse(localStorage.getItem(KEY)||"null"); if(s&&s.length) s.forEach(function(id){ var a=nav.querySelector('a[data-nid="'+id+'"]'); if(a) nav.insertBefore(a, rb); }); }catch(e){}
   function save(){ try{ localStorage.setItem(KEY, JSON.stringify(links().map(function(a){return a.dataset.nid;}))); }catch(e){} }
@@ -111,7 +112,6 @@ footer{font-size:11.5px;color:var(--sub);text-align:center;}
     <a class="tarjeta" href="tablero.html"><b>📊 General</b><span>Inventario vs óptimo, venta y margen mes a mes, y los subgrupos que más venden este mes.</span></a>
     <a class="tarjeta" href="ventas.html"><b>📈 Ventas y utilidades</b><span>Utilidad bruta y operativa por periodo, ventas por familia, y el corte de día vs noche.</span></a>
     <a class="tarjeta" href="gastos.html"><b>💸 Gastos operativos</b><span>En qué se va el dinero: gasto sobre venta con semáforo, focos rojos automáticos, y cada categoría se abre para ver a quién se le pagó.</span></a>
-    <a class="tarjeta" href="compras.html"><b>🛒 Compras urgentes</b><span>Lo que está por agotarse y hay que resurtir (uso operativo de la tienda).</span></a>
     <a class="tarjeta" href="rotacion.html"><b>⏱️ Rotación y recuperación</b><span>Qué tan rápido trabaja el dinero invertido en cada familia y dónde está congelado.</span></a>
     <a class="tarjeta" href="equilibrio.html"><b>⚖️ Punto de equilibrio</b><span>Costos fijos vs variables y cuánto hay que vender para no perder.</span></a>
   </div>

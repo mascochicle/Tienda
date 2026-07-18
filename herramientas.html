@@ -16,22 +16,23 @@
 #navph{display:inline-block;border-radius:4px;background:var(--acc);opacity:.22;}
 #navrb{cursor:pointer;color:var(--sub,#8a8578);opacity:.5;user-select:none;font-size:14px;line-height:1;margin-left:auto;padding:2px 3px;}
 #navrb.on{color:var(--acc);opacity:1;}
+#navtools{max-width:560px;margin:-4px auto 16px;text-align:center;}
+#navtools a{color:var(--acc);text-decoration:none;font-size:13px;font-weight:600;}
 </style>
 <nav id="nav">
 <a data-nid="inicio" href="index.html">Inicio</a>
 <a data-nid="general" href="tablero.html">General</a>
 <a data-nid="ventas" href="ventas.html">Ventas</a>
 <a data-nid="gastos" href="gastos.html">Gastos</a>
-<a data-nid="compras" href="compras.html">Compras</a>
 <a data-nid="rotacion" href="rotacion.html">Rotación</a>
 <a data-nid="equilibrio" href="equilibrio.html">Equilibrio</a>
-<a data-nid="herramientas" href="herramientas.html">🔒 Herramientas</a>
 <span id="navrb" title="Reordenar menú">⠿ reordenar</span>
 </nav>
+<div id="navtools"><a href="herramientas.html">🔒 Herramientas del dueño</a></div>
 <script>
 (function(){
   var nav=document.getElementById("nav"); if(!nav) return;
-  var rb=document.getElementById("navrb"), KEY="navOrder_v1", reord=false;
+  var rb=document.getElementById("navrb"), KEY="navOrder_v2", reord=false;
   function links(){ return [].slice.call(nav.querySelectorAll("a[data-nid]")); }
   try{ var s=JSON.parse(localStorage.getItem(KEY)||"null"); if(s&&s.length) s.forEach(function(id){ var a=nav.querySelector('a[data-nid="'+id+'"]'); if(a) nav.insertBefore(a, rb); }); }catch(e){}
   function save(){ try{ localStorage.setItem(KEY, JSON.stringify(links().map(function(a){return a.dataset.nid;}))); }catch(e){} }
@@ -110,6 +111,7 @@ a.tarjeta.dragging{opacity:.9;box-shadow:0 10px 26px rgba(0,0,0,.28);border-colo
   </div>
 
   <div id="tools">
+    <a class="tarjeta" data-id="compras" href="https://claude.ai/code/artifact/65054ab9-c9e9-4243-9a70-e6168bdb23f9" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🛒 Compras urgentes</b><span>Qué resurtir, por producto. Toca uno para ver su gráfica de costo vs precio y el margen.</span></a>
     <a class="tarjeta" data-id="audc" href="https://claude.ai/code/artifact/85671dd4-d0b4-4b47-90b8-2ad8e3b1b5ba" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🔍 Auditoría de cortes</b><span>¿Entró al sistema todo lo del corte, al costo correcto? Cuadre por folio y por día.</span></a>
     <a class="tarjeta" data-id="audp" href="https://claude.ai/code/artifact/beb28756-5018-406a-a59d-248855de100a" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🏷️ Auditoría de precios</b><span>¿Ya subiste los precios del plan? Y quién quedó mal preciado.</span></a>
     <a class="tarjeta" data-id="folio" href="https://claude.ai/code/artifact/dfa81d33-d226-4458-a6b9-1842435cab2f" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🎫 Buscar folio</b><span>¿No salió el folio por un fallo? Escribe qué compraron y aquí aparece.</span></a>
@@ -124,10 +126,11 @@ a.tarjeta.dragging{opacity:.9;box-shadow:0 10px 26px rgba(0,0,0,.28);border-colo
 </div>
 <script>
 (function(){
-  // KEY v5 (19-jul-2026): Marco fijó nuevo orden default (audc, audp, folio, cero, marg, calc, pend, reinv).
-  // Subir la version al cambiar el orden fijo o agregar/quitar tarjeta, si no el orden guardado en el
-  // dispositivo (v4) reacomoda y pisa el default. El reordenar es 2D (por cercanía), dos por fila.
-  var tools=document.getElementById("tools"), KEY="herrOrder_v5", reorder=false;
+  // KEY v6 (19-jul-2026): se AGREGÓ "Compras urgentes" (privada, con su gráfica) al frente ->
+  // orden default: compras, audc, audp, folio, cero, marg, calc, pend, reinv. Subir la version al
+  // cambiar el orden fijo o agregar/quitar tarjeta, si no el orden guardado en el dispositivo pisa el
+  // default. El reordenar es 2D (por cercanía), dos por fila.
+  var tools=document.getElementById("tools"), KEY="herrOrder_v6", reorder=false;
   // aplicar orden guardado en este dispositivo
   try{
     var saved=JSON.parse(localStorage.getItem(KEY)||"null");
