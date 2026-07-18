@@ -80,6 +80,9 @@ td{padding:5px 4px;border-bottom:1px solid var(--line);text-align:right;white-sp
 tr.pr{cursor:pointer;} tr.pr:active{background:var(--acc-soft);} .cx{display:inline-block;width:11px;color:var(--sub);font-size:9px;}
 tr.cods td{font-size:11px;color:var(--sub);white-space:normal;text-align:left;font-weight:400;padding:1px 4px 7px 20px;font-variant-numeric:tabular-nums;}
 tr.div td{background:var(--acc-soft);color:var(--sub);font-size:11px;font-weight:700;text-align:left;padding:6px 8px;letter-spacing:.02em;}
+tr.oculto{display:none;} .card.expandido tr.oculto{display:table-row;}
+.vermas{color:var(--acc);font-size:12.5px;font-weight:600;cursor:pointer;padding:9px 4px 2px;user-select:none;}
+.vermas:active{opacity:.6;}
 .pill{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.03em;padding:1px 7px;border-radius:99px;}
 .p-rojo{background:var(--rojo-bg);color:var(--rojo);} .p-ambar{background:var(--ambar-bg);color:var(--ambar);}
 .sub2{font-size:11.5px;color:var(--sub);margin:-2px 0 9px;line-height:1.35;}
@@ -293,6 +296,31 @@ footer{font-size:11.5px;color:var(--sub);text-align:center;}
 function tog(row){var d=row.nextElementSibling; if(!d||d.className!=="cods")return;
   var open=d.style.display!=="none"; d.style.display=open?"none":"table-row";
   var cx=row.querySelector(".cx"); if(cx)cx.textContent=open?"▸":"▾";}
+// PEEK: cada tabla muestra solo los primeros N productos; un botón «ver los otros N» abre el resto (Marco 19-jul).
+// Si la tabla tiene <=N productos, no colapsa. Las filas de códigos (inline display:none) no se afectan.
+(function(){
+  var PEEK=5;
+  [].forEach.call(document.querySelectorAll(".card"),function(card){
+    var tbl=card.querySelector("table"); if(!tbl) return;
+    var rows=[].slice.call(tbl.querySelectorAll("tr")).filter(function(r){return !r.querySelector("th");});
+    var pr=0, cut=-1;
+    for(var i=0;i<rows.length;i++){ if(rows[i].classList.contains("pr")){ pr++; if(pr>PEEK){ cut=i; break; } } }
+    if(cut<0) return;   // <=PEEK productos: se muestran todos
+    var oc=0;
+    for(var j=cut;j<rows.length;j++){ rows[j].classList.add("oculto"); if(rows[j].classList.contains("pr")) oc++; }
+    var b=document.createElement("div"); b.className="vermas";
+    b.textContent="▾ ver los otros "+oc;
+    b.onclick=function(){
+      var ab=card.classList.toggle("expandido");
+      if(!ab){   // al colapsar, cerrar cualquier código abierto (si no, el renglón inline quedaría suelto)
+        [].forEach.call(card.querySelectorAll("tr.cods"),function(c){ c.style.display="none"; });
+        [].forEach.call(card.querySelectorAll("tr.pr .cx"),function(x){ x.textContent="▸"; });
+      }
+      b.textContent=ab?"▴ ver menos":"▾ ver los otros "+oc;
+    };
+    card.appendChild(b);
+  });
+})();
 </script>
 
 </body>
