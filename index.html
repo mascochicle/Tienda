@@ -9,12 +9,12 @@
 </head>
 <body>
 <style>
-#nav{max-width:560px;margin:0 auto 14px;display:flex;gap:13px;font-size:13px;font-weight:600;flex-wrap:wrap;align-items:center;}
+#nav{max-width:560px;margin:0 auto 14px;display:flex;gap:14px;font-size:15px;font-weight:600;flex-wrap:wrap;align-items:center;justify-content:center;}
 #nav a{color:var(--acc);text-decoration:none;}
 #nav.reord a{cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none;outline:1px dashed var(--acc);outline-offset:2px;border-radius:4px;}
 #nav a.ndrag{opacity:.85;}
 #navph{display:inline-block;border-radius:4px;background:var(--acc);opacity:.22;}
-#navrb{cursor:pointer;color:var(--sub,#8a8578);opacity:.5;user-select:none;font-size:14px;line-height:1;margin-left:auto;padding:2px 3px;}
+#navrb{cursor:pointer;color:var(--sub,#8a8578);opacity:.5;user-select:none;font-size:13px;line-height:1;padding:2px 3px;}
 #navrb.on{color:var(--acc);opacity:1;}
 #navtools{max-width:560px;margin:-4px auto 16px;text-align:center;}
 #navtools a{color:var(--acc);text-decoration:none;font-size:13px;font-weight:600;}
@@ -83,6 +83,9 @@ header p{margin:6px 0 0;color:var(--sub);font-size:14px;}
 .kpi .l{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--sub);font-weight:600;}
 .kpi .v{font-size:22px;font-weight:650;margin-top:2px;font-variant-numeric:tabular-nums;}
 .tarjetas{display:grid;grid-template-columns:1fr 1fr;gap:11px;align-items:stretch;}
+/* si queda UN cuadro solo hasta abajo (número impar), centrarlo en vez de dejarlo a la izquierda */
+.tarjetas > a.tarjeta:last-child:nth-child(odd){grid-column:1 / -1;justify-self:center;box-sizing:border-box;width:calc((100% - 11px)/2);}
+.kpis > .kpi:last-child:nth-child(odd){grid-column:1 / -1;justify-self:center;box-sizing:border-box;width:calc((100% - 10px)/2);}
 a.tarjeta{display:block;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;text-decoration:none;color:var(--ink);}
 a.tarjeta:hover{border-color:var(--acc);}
 a.tarjeta b{color:var(--acc);font-size:15px;line-height:1.25;display:inline-block;}
