@@ -72,6 +72,10 @@
 body{background:var(--bg);color:var(--ink);font-family:-apple-system,"Segoe UI",Roboto,sans-serif;margin:0;padding:20px 12px 48px;line-height:1.45;}
 .wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:16px;}
 header h1{font-size:21px;margin:0;font-weight:650;} header p{margin:4px 0 0;color:var(--sub);font-size:13px;}
+.htop{display:flex;align-items:flex-start;gap:10px;justify-content:space-between;}
+.allbtn{background:none;border:1px solid var(--line);color:var(--acc);font-size:12.5px;font-weight:600;cursor:pointer;user-select:none;padding:5px 10px;border-radius:8px;white-space:nowrap;font-family:inherit;margin-top:2px;flex:none;}
+.allbtn:active{opacity:.6;}
+th{cursor:pointer;user-select:none;}
 .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 14px 10px;}
 .card h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);margin:0 0 8px;font-weight:700;}
 table{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums;}
@@ -90,7 +94,7 @@ tr.oculto{display:none;} .card.expandido tr.oculto{display:table-row;}
 footer{font-size:11.5px;color:var(--sub);text-align:center;}
 </style>
 <div class="wrap">
-  <header><h1>🛒 Compras urgentes — Tienda</h1><p>Corte del 17 de julio 2026 · base de Venta Fácil · «Vende» = promedio mensual ponderado (lo reciente pesa más)</p></header>
+  <header><div class="htop"><h1>🛒 Compras urgentes — Tienda</h1><button class="allbtn" id="allbtn" onclick="toggleAll()">▾ abrir todo</button></div><p>Corte del 17 de julio 2026 · base de Venta Fácil · «Vende» = promedio mensual ponderado (lo reciente pesa más)</p></header>
 <div class="card"><h2>🍺 Cerveza — pedir ya</h2><p class="sub2">🔽 <b>Orden:</b> primero lo que <b>más vendes</b>.</p><p class="sub2">📦 <b>Stock</b> ideal = lo que vendes en <b>10 días</b>.</p><p class="sub2">Existencia estimada = tu <b>conteo físico del 6/7/2026</b> + entradas − ventas registradas desde entonces (piezas reales). «Vende» ya incluye lo vendido por six y presentaciones (×6, etc.).</p><table><tr><th>Producto</th><th>Hay</th><th>Stock</th><th>Vende</th><th>Falta $</th><th>Estado</th></tr>
 <tr class="pr" onclick="tog(this)"><td><span class="cx">▸</span> Lata Pacifico Suave 355Ml</td><td>12</td><td>186</td><td>565</td><td>$3.1k</td><td><span class="pill p-rojo">~1 día</span></td></tr>
 <tr class="cods" style="display:none"><td colspan="6">código 064199387 · pieza base contada físicamente</td></tr>
@@ -304,29 +308,75 @@ footer{font-size:11.5px;color:var(--sub);text-align:center;}
 function tog(row){var d=row.nextElementSibling; if(!d||d.className!=="cods")return;
   var open=d.style.display!=="none"; d.style.display=open?"none":"table-row";
   var cx=row.querySelector(".cx"); if(cx)cx.textContent=open?"▸":"▾";}
-// PEEK: cada tabla muestra solo los primeros N productos; un botón «ver los otros N» abre el resto (Marco 19-jul).
-// Si la tabla tiene <=N productos, no colapsa. Las filas de códigos (inline display:none) no se afectan.
-(function(){
-  var PEEK=5;
-  [].forEach.call(document.querySelectorAll(".card"),function(card){
-    var tbl=card.querySelector("table"); if(!tbl) return;
-    var rows=[].slice.call(tbl.querySelectorAll("tr")).filter(function(r){return !r.querySelector("th");});
-    var pr=0, cut=-1;
-    for(var i=0;i<rows.length;i++){ if(rows[i].classList.contains("pr")){ pr++; if(pr>PEEK){ cut=i; break; } } }
-    if(cut<0) return;   // <=PEEK productos: se muestran todos
-    var oc=0;
-    for(var j=cut;j<rows.length;j++){ rows[j].classList.add("oculto"); if(rows[j].classList.contains("pr")) oc++; }
-    var b=document.createElement("div"); b.className="vermas";
-    b.textContent="▾ ver los otros "+oc;
+
+// valor ordenable de una celda (número donde aplica; texto en Producto; agotado=0 en Estado)
+function cellVal(row,col){
+  var t=(row.children[col]?row.children[col].textContent:"").trim();
+  if(col===0) return t.replace(/[▸▾]/g,"").trim().toLowerCase();                 // Producto: alfabético
+  if(col===4){ if(t.indexOf("—")>=0||!t) return -1;                              // Falta $: «$3.1k» -> 3100
+    var n=parseFloat(t.replace(/[^0-9.]/g,""))||0; if(t.toLowerCase().indexOf("k")>=0) n*=1000; return n; }
+  if(col===5){ if(t.toLowerCase().indexOf("agotado")>=0) return 0;               // Estado: agotado=0, «N días»=N
+    var m=t.match(/[0-9]+/); return m?parseInt(m[0],10):999; }
+  var n=parseInt(t.replace(/[^0-9-]/g,""),10); return isNaN(n)?0:n;              // Hay/Stock/Vende
+}
+
+// PEEK: muestra los primeros 5 productos + botón «ver los otros N»; reutilizable (se re-aplica al ordenar).
+function peekCard(card){
+  var tbl=card.querySelector("table"); if(!tbl) return;
+  [].forEach.call(tbl.querySelectorAll("tr.oculto"),function(r){ r.classList.remove("oculto"); });
+  var rows=[].slice.call(tbl.querySelectorAll("tr")).filter(function(r){return !r.querySelector("th");});
+  var pr=0, cut=-1;
+  for(var i=0;i<rows.length;i++){ if(rows[i].classList.contains("pr")){ pr++; if(pr>5){ cut=i; break; } } }
+  var b=card.querySelector(".vermas");
+  if(cut<0){ if(b) b.style.display="none"; return; }                             // <=5 productos: sin botón
+  var oc=0;
+  for(var j=cut;j<rows.length;j++){ rows[j].classList.add("oculto"); if(rows[j].classList.contains("pr")) oc++; }
+  if(!b){
+    b=document.createElement("div"); b.className="vermas"; card.appendChild(b);
     b.onclick=function(){
       var ab=card.classList.toggle("expandido");
-      if(!ab){   // al colapsar, cerrar cualquier código abierto (si no, el renglón inline quedaría suelto)
+      if(!ab){   // al colapsar, cerrar cualquier código abierto (si no, el renglón inline queda suelto)
         [].forEach.call(card.querySelectorAll("tr.cods"),function(c){ c.style.display="none"; });
         [].forEach.call(card.querySelectorAll("tr.pr .cx"),function(x){ x.textContent="▸"; });
       }
-      b.textContent=ab?"▴ ver menos":"▾ ver los otros "+oc;
+      b.textContent=ab?"▴ ver menos":"▾ ver los otros "+card._oc;
     };
-    card.appendChild(b);
+  }
+  b.style.display=""; card._oc=oc;
+  b.textContent=card.classList.contains("expandido")?"▴ ver menos":"▾ ver los otros "+oc;
+}
+
+// ordenar una tabla por columna (toca el encabezado); alterna asc/desc y quita el separador de baja rotación
+var DEFDIR=[1,1,-1,-1,-1,1];   // 1er clic por columna: Producto/Hay/Estado asc, Stock/Vende/Falta$ desc
+function sortCard(card,col){
+  var tbl=card.querySelector("table"); if(!tbl) return;
+  var dir=(tbl._sc===col)?-tbl._sd:DEFDIR[col]; tbl._sc=col; tbl._sd=dir;
+  [].forEach.call(tbl.querySelectorAll("tr.div"),function(d){ d.remove(); });   // al ordenar, lista plana
+  var units=[].slice.call(tbl.querySelectorAll("tr.pr")).map(function(pr){
+    var c=pr.nextElementSibling; return {pr:pr, cods:(c&&c.classList.contains("cods"))?c:null, v:cellVal(pr,col)}; });
+  units.sort(function(a,b){ return (a.v<b.v?-1:a.v>b.v?1:0)*dir; });
+  units.forEach(function(u){ tbl.appendChild(u.pr); if(u.cods) tbl.appendChild(u.cods); });
+  var ths=tbl.querySelectorAll("th");
+  [].forEach.call(ths,function(t){ t.textContent=t.textContent.replace(/ ▲/,"").replace(/ ▼/,""); });
+  ths[col].textContent=ths[col].textContent+(dir>0?" ▲":" ▼");
+  peekCard(card);
+}
+
+// abrir / cerrar TODAS las tablas (botón junto al título)
+function toggleAll(){
+  var conBoton=[].slice.call(document.querySelectorAll(".card")).filter(function(c){return c.querySelector(".vermas");});
+  var todasAbiertas=conBoton.length>0 && conBoton.every(function(c){return c.classList.contains("expandido");});
+  var abrir=!todasAbiertas;
+  conBoton.forEach(function(c){ if(abrir!==c.classList.contains("expandido")) c.querySelector(".vermas").click(); });
+  document.getElementById("allbtn").textContent=abrir?"▴ cerrar todo":"▾ abrir todo";
+}
+
+// init: encabezados ordenables + peek en cada tabla
+(function(){
+  [].forEach.call(document.querySelectorAll(".card"),function(card){
+    var tbl=card.querySelector("table"); if(!tbl) return;
+    [].forEach.call(tbl.querySelectorAll("th"),function(th,col){ th.onclick=function(){ sortCard(card,col); }; });
+    peekCard(card);
   });
 })();
 </script>
