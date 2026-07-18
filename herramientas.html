@@ -77,11 +77,11 @@ body{background:var(--bg);color:var(--ink);font-family:-apple-system,"Segoe UI",
 .wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px;}
 header h1{font-size:21px;margin:0;font-weight:650;}
 header p{margin:6px 0 0;color:var(--sub);font-size:13.5px;}
-a.tarjeta{display:block;background:var(--card);border:1px dashed var(--line);border-radius:10px;padding:14px 16px;text-decoration:none;color:var(--ink);position:relative;}
+a.tarjeta{display:block;background:var(--card);border:1px dashed var(--line);border-radius:10px;padding:12px 13px;text-decoration:none;color:var(--ink);position:relative;}
 a.tarjeta:hover{border-color:var(--acc);border-style:solid;}
-a.tarjeta b{color:var(--acc);font-size:15px;}
-a.tarjeta b::after{content:" 🔒";font-size:11px;}
-a.tarjeta span{display:block;font-size:13px;color:var(--sub);margin-top:3px;}
+a.tarjeta b{color:var(--acc);font-size:14px;line-height:1.25;display:inline-block;}
+a.tarjeta b::after{content:" 🔒";font-size:10px;}
+a.tarjeta span{display:block;font-size:11.5px;color:var(--sub);margin-top:4px;line-height:1.35;}
 .aviso{background:var(--acc-soft);border-radius:10px;padding:11px 14px;font-size:12.5px;color:var(--ink);}
 footer{font-size:11.5px;color:var(--sub);text-align:center;}
 /* ---- reordenar (arrastrar) ---- */
@@ -89,9 +89,9 @@ footer{font-size:11.5px;color:var(--sub);text-align:center;}
 .rbtn{background:none;border:none;color:var(--sub);opacity:.65;font-size:12.5px;font-weight:600;cursor:pointer;user-select:none;padding:2px 4px;white-space:nowrap;font-family:inherit;}
 .rbtn.on{color:var(--acc);opacity:1;}
 .rhint{font-size:11.5px;color:var(--sub);margin:0;}
-#tools{display:flex;flex-direction:column;gap:14px;}
-#tools.reorder a.tarjeta{border-style:solid;border-color:var(--acc);cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-user-drag:none;padding-left:46px;}
-a.tarjeta .grip{display:none;position:absolute;left:12px;top:0;bottom:0;align-items:center;font-size:20px;color:var(--sub);font-style:normal;}
+#tools{display:grid;grid-template-columns:1fr 1fr;gap:11px;align-items:stretch;}
+#tools.reorder a.tarjeta{border-style:solid;border-color:var(--acc);cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-user-drag:none;padding-left:34px;}
+a.tarjeta .grip{display:none;position:absolute;left:9px;top:0;bottom:0;align-items:center;font-size:18px;color:var(--sub);font-style:normal;}
 #tools.reorder a.tarjeta .grip{display:flex;}
 a.tarjeta.dragging{opacity:.9;box-shadow:0 10px 26px rgba(0,0,0,.28);border-color:var(--acc);border-style:solid;}
 .ph{border:2px dashed var(--acc);border-radius:10px;background:var(--acc-soft);box-sizing:border-box;}
@@ -110,23 +110,24 @@ a.tarjeta.dragging{opacity:.9;box-shadow:0 10px 26px rgba(0,0,0,.28);border-colo
   </div>
 
   <div id="tools">
-    <a class="tarjeta" data-id="audp" href="https://claude.ai/code/artifact/beb28756-5018-406a-a59d-248855de100a" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🏷️ Auditoría de precios</b><span>El lado del cliente: rastrea qué subidas de precio ya aplicaste (de las presentaciones), detecta cualquier cambio de precio, y caza nuevos productos por debajo de su familia.</span></a>
-    <a class="tarjeta" data-id="cero" href="https://claude.ai/code/artifact/2d0d0e9e-93ea-4a01-9482-a74c83526cf2" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🚨 Días en cero</b><span>Lo que vuela y aun así tuvo días sin vender NI UNA pieza: no había. Con las piezas que no alcanzaron y lo que se dejó de ganar, a 3 meses, 6 meses o 1 año. Revísalo antes de hacer el pedido.</span></a>
-    <a class="tarjeta" data-id="audc" href="https://claude.ai/code/artifact/85671dd4-d0b4-4b47-90b8-2ad8e3b1b5ba" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🔍 Auditoría de compras</b><span>El lado del proveedor: ¿entró al sistema todo lo que se compró en efectivo, y al costo correcto? Con el registro día por día.</span></a>
-    <a class="tarjeta" data-id="marg" href="https://claude.ai/code/artifact/68ec5d67-6bbf-4db1-be5f-50fcc452e3c8" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🎯 Margen</b><span>Qué tan rentable es cada familia: margen por mes y por subgrupo, y cada subgrupo se abre para ver sus productos con su tendencia.</span></a>
-    <a class="tarjeta" data-id="calc" href="https://claude.ai/code/artifact/987b5434-3da5-4045-bcf7-352feba66595" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🧮 Calculadora de compra</b><span>¿En cuánto se recupera una compra por descuento? Escribe lo que te ofrecen y te dice si conviene.</span></a>
-    <a class="tarjeta" data-id="pend" href="https://claude.ai/code/artifact/24fdced5-4230-4a54-9faf-3469d1b3af51" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>📌 Pendientes</b><span>Tu bitácora: lo que falta decidir o atacar, ordenado por lo que más dinero mueve. Es la misma lista que lleva Claude — si le preguntas «¿qué pendientes tengo?», te lee justo esta.</span></a>
-    <a class="tarjeta" data-id="reinv" href="https://claude.ai/code/artifact/2893acf1-660a-4e2e-b19d-21bbe59b49c3" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>💰 Reinvertir / Liberar</b><span>Dónde conviene meter dinero (por ganancia) y dónde está atorado tu capital, por subgrupo colapsable.</span></a>
+    <a class="tarjeta" data-id="audp" href="https://claude.ai/code/artifact/beb28756-5018-406a-a59d-248855de100a" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🏷️ Auditoría de precios</b><span>¿Ya subiste los precios del plan? Y quién quedó mal preciado.</span></a>
+    <a class="tarjeta" data-id="cero" href="https://claude.ai/code/artifact/2d0d0e9e-93ea-4a01-9482-a74c83526cf2" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🚨 Días en cero</b><span>Lo que vuela y aun así tuvo días sin vender: no había. Revisa antes del pedido.</span></a>
+    <a class="tarjeta" data-id="audc" href="https://claude.ai/code/artifact/85671dd4-d0b4-4b47-90b8-2ad8e3b1b5ba" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🔍 Auditoría de compras</b><span>¿Entró todo lo comprado, al costo correcto? Cuadre por folio y por día.</span></a>
+    <a class="tarjeta" data-id="folio" href="https://claude.ai/code/artifact/dfa81d33-d226-4458-a6b9-1842435cab2f" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🎫 Buscar folio</b><span>¿No salió el folio por un fallo? Escribe qué compraron y aquí aparece.</span></a>
+    <a class="tarjeta" data-id="marg" href="https://claude.ai/code/artifact/68ec5d67-6bbf-4db1-be5f-50fcc452e3c8" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🎯 Margen</b><span>Qué tan rentable es cada familia y producto.</span></a>
+    <a class="tarjeta" data-id="calc" href="https://claude.ai/code/artifact/987b5434-3da5-4045-bcf7-352feba66595" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🧮 Calculadora de compra</b><span>¿En cuánto se recupera una compra por descuento?</span></a>
+    <a class="tarjeta" data-id="pend" href="https://claude.ai/code/artifact/24fdced5-4230-4a54-9faf-3469d1b3af51" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>📌 Pendientes</b><span>Tu bitácora, ordenada por lo que más mueve el dinero.</span></a>
+    <a class="tarjeta" data-id="reinv" href="https://claude.ai/code/artifact/2893acf1-660a-4e2e-b19d-21bbe59b49c3" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>💰 Reinvertir / Liberar</b><span>Dónde meter dinero y dónde está atorado tu capital.</span></a>
   </div>
 
   <footer>Minisuper "X" · privado · se actualiza con cada BAJACH · el orden que elijas se guarda en este dispositivo</footer>
 </div>
 <script>
 (function(){
-  // KEY v3 (15-jul-2026): al entrar 🎯 Margen (7ma tarjeta) hay que subir la version, si no el orden
-  // guardado en v2 (6 ids) reacomoda las viejas al final y empuja Margen hasta ARRIBA. Subir a v4 si
-  // se agrega/quita otra tarjeta o se cambia el orden fijo.
-  var tools=document.getElementById("tools"), KEY="herrOrder_v3", reorder=false;
+  // KEY v4 (18-jul-2026): grid de 2 columnas + nueva tarjeta 🎫 Buscar folio (8 tarjetas). Subir la
+  // version al agregar/quitar tarjeta o cambiar el orden fijo, si no el orden guardado (v3, 7 ids) empuja
+  // las nuevas hasta abajo/arriba. El reordenar es 2D (por cercanía), porque ahora hay dos por fila.
+  var tools=document.getElementById("tools"), KEY="herrOrder_v4", reorder=false;
   // aplicar orden guardado en este dispositivo
   try{
     var saved=JSON.parse(localStorage.getItem(KEY)||"null");
@@ -144,26 +145,32 @@ a.tarjeta.dragging{opacity:.9;box-shadow:0 10px 26px rgba(0,0,0,.28);border-colo
     h.style.display = reorder ? "inline" : "none";
   };
   // arrastre pointer (celular+escritorio): TOCAR abre la herramienta; solo ARRASTRAR (>8px) reordena
-  var drag=null, ph=null, offY=0, pend=null, sy=0, moved=false;
+  var drag=null, ph=null, offX=0, offY=0, pend=null, sx=0, sy=0, moved=false;
   tools.addEventListener("pointerdown", function(e){
     if(!reorder) return; var card=e.target.closest("a.tarjeta"); if(!card) return;
-    pend=card; sy=e.clientY; moved=false;
+    pend=card; sx=e.clientX; sy=e.clientY; moved=false;
   });
   tools.addEventListener("pointermove", function(e){
     if(pend && !drag){
-      if(Math.abs(e.clientY-sy)<8) return;   // UMBRAL: un toque no reordena, solo un arrastre deliberado
-      moved=true; var card=pend, r=card.getBoundingClientRect(); drag=card; offY=e.clientY-r.top;
+      if(Math.hypot(e.clientX-sx, e.clientY-sy)<8) return;   // UMBRAL 2D: un toque no reordena, solo un arrastre
+      moved=true; var card=pend, r=card.getBoundingClientRect(); drag=card; offX=e.clientX-r.left; offY=e.clientY-r.top;
       ph=document.createElement("div"); ph.className="ph"; ph.style.height=r.height+"px";
       card.parentNode.insertBefore(ph, card); card.classList.add("dragging");
-      card.style.position="fixed"; card.style.width=r.width+"px"; card.style.left=r.left+"px";
+      card.style.position="fixed"; card.style.width=r.width+"px"; card.style.left=(e.clientX-offX)+"px";
       card.style.top=(e.clientY-offY)+"px"; card.style.margin="0"; card.style.zIndex="30";
       try{ card.setPointerCapture(e.pointerId); }catch(_){}
     }
     if(!drag) return; e.preventDefault();
-    drag.style.top=(e.clientY-offY)+"px";
-    var others=[].slice.call(tools.querySelectorAll("a.tarjeta:not(.dragging)")), after=null;
-    others.forEach(function(c){ var r=c.getBoundingClientRect(); if(e.clientY>r.top+r.height/2) after=c; });
-    if(after) tools.insertBefore(ph, after.nextSibling);
+    drag.style.left=(e.clientX-offX)+"px"; drag.style.top=(e.clientY-offY)+"px";
+    // GRID 2 columnas -> insertar por CERCANÍA 2D: la tarjeta cuyo centro está más cerca del cursor; va
+    // ANTES o DESPUÉS según si el cursor quedó a su izquierda-arriba o derecha-abajo (orden de lectura).
+    var others=[].slice.call(tools.querySelectorAll("a.tarjeta:not(.dragging)"));
+    var best=null, bestD=Infinity, insAfter=false;
+    others.forEach(function(c){ var r=c.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2;
+      var d=Math.hypot(e.clientX-cx, e.clientY-cy);
+      if(d<bestD){ bestD=d; best=c; insAfter=(e.clientY>cy+r.height*0.15)||(Math.abs(e.clientY-cy)<=r.height*0.6 && e.clientX>cx); }
+    });
+    if(best) tools.insertBefore(ph, insAfter?best.nextSibling:best);
     else if(others.length) tools.insertBefore(ph, others[0]);
   });
   function endDrag(){ pend=null; if(!drag) return;
