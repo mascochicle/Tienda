@@ -110,10 +110,10 @@ a.tarjeta.dragging{opacity:.9;box-shadow:0 10px 26px rgba(0,0,0,.28);border-colo
   </div>
 
   <div id="tools">
-    <a class="tarjeta" data-id="audp" href="https://claude.ai/code/artifact/beb28756-5018-406a-a59d-248855de100a" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🏷️ Auditoría de precios</b><span>¿Ya subiste los precios del plan? Y quién quedó mal preciado.</span></a>
-    <a class="tarjeta" data-id="cero" href="https://claude.ai/code/artifact/2d0d0e9e-93ea-4a01-9482-a74c83526cf2" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🚨 Días en cero</b><span>Lo que vuela y aun así tuvo días sin vender: no había. Revisa antes del pedido.</span></a>
     <a class="tarjeta" data-id="audc" href="https://claude.ai/code/artifact/85671dd4-d0b4-4b47-90b8-2ad8e3b1b5ba" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🔍 Auditoría de compras</b><span>¿Entró todo lo comprado, al costo correcto? Cuadre por folio y por día.</span></a>
+    <a class="tarjeta" data-id="audp" href="https://claude.ai/code/artifact/beb28756-5018-406a-a59d-248855de100a" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🏷️ Auditoría de precios</b><span>¿Ya subiste los precios del plan? Y quién quedó mal preciado.</span></a>
     <a class="tarjeta" data-id="folio" href="https://claude.ai/code/artifact/dfa81d33-d226-4458-a6b9-1842435cab2f" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🎫 Buscar folio</b><span>¿No salió el folio por un fallo? Escribe qué compraron y aquí aparece.</span></a>
+    <a class="tarjeta" data-id="cero" href="https://claude.ai/code/artifact/2d0d0e9e-93ea-4a01-9482-a74c83526cf2" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🚨 Días en cero</b><span>Lo que vuela y aun así tuvo días sin vender: no había. Revisa antes del pedido.</span></a>
     <a class="tarjeta" data-id="marg" href="https://claude.ai/code/artifact/68ec5d67-6bbf-4db1-be5f-50fcc452e3c8" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🎯 Margen</b><span>Qué tan rentable es cada familia y producto.</span></a>
     <a class="tarjeta" data-id="calc" href="https://claude.ai/code/artifact/987b5434-3da5-4045-bcf7-352feba66595" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🧮 Calculadora de compra</b><span>¿En cuánto se recupera una compra por descuento?</span></a>
     <a class="tarjeta" data-id="pend" href="https://claude.ai/code/artifact/24fdced5-4230-4a54-9faf-3469d1b3af51" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>📌 Pendientes</b><span>Tu bitácora, ordenada por lo que más mueve el dinero.</span></a>
@@ -124,10 +124,10 @@ a.tarjeta.dragging{opacity:.9;box-shadow:0 10px 26px rgba(0,0,0,.28);border-colo
 </div>
 <script>
 (function(){
-  // KEY v4 (18-jul-2026): grid de 2 columnas + nueva tarjeta 🎫 Buscar folio (8 tarjetas). Subir la
-  // version al agregar/quitar tarjeta o cambiar el orden fijo, si no el orden guardado (v3, 7 ids) empuja
-  // las nuevas hasta abajo/arriba. El reordenar es 2D (por cercanía), porque ahora hay dos por fila.
-  var tools=document.getElementById("tools"), KEY="herrOrder_v4", reorder=false;
+  // KEY v5 (19-jul-2026): Marco fijó nuevo orden default (audc, audp, folio, cero, marg, calc, pend, reinv).
+  // Subir la version al cambiar el orden fijo o agregar/quitar tarjeta, si no el orden guardado en el
+  // dispositivo (v4) reacomoda y pisa el default. El reordenar es 2D (por cercanía), dos por fila.
+  var tools=document.getElementById("tools"), KEY="herrOrder_v5", reorder=false;
   // aplicar orden guardado en este dispositivo
   try{
     var saved=JSON.parse(localStorage.getItem(KEY)||"null");
