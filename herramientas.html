@@ -116,6 +116,7 @@ a.tarjeta.dragging{opacity:.9;box-shadow:0 10px 26px rgba(0,0,0,.28);border-colo
     <a class="tarjeta" data-id="audc" href="https://claude.ai/code/artifact/85671dd4-d0b4-4b47-90b8-2ad8e3b1b5ba" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🔍 Auditoría de cortes</b><span>¿Entró al sistema todo lo del corte, al costo correcto? Cuadre por folio y por día.</span></a>
     <a class="tarjeta" data-id="errc" href="https://claude.ai/code/artifact/dd46bcdf-f404-4d5f-8cac-b48e5d1b335a" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🧾 Errores de costeo</b><span>¿El costo de la ficha es el que pagaste en la nota? Lo que falta corregir y qué folios revisar.</span></a>
     <a class="tarjeta" data-id="audp" href="https://claude.ai/code/artifact/beb28756-5018-406a-a59d-248855de100a" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🏷️ Auditoría de precios</b><span>¿Ya subiste los precios del plan? Y quién quedó mal preciado.</span></a>
+    <a class="tarjeta" data-id="noche" href="https://claude.ai/code/artifact/e5165016-d68c-4c85-8098-b5031ff64083" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🌙 Precio de noche</b><span>El incremento que le toca a cada producto de noche, contra el que trae hoy.</span></a>
     <a class="tarjeta" data-id="compras" href="https://claude.ai/code/artifact/65054ab9-c9e9-4243-9a70-e6168bdb23f9" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🛒 Compras urgentes</b><span>Qué resurtir, por producto. Toca uno para ver su gráfica de costo vs precio y el margen.</span></a>
     <a class="tarjeta" data-id="cero" href="https://claude.ai/code/artifact/2d0d0e9e-93ea-4a01-9482-a74c83526cf2" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🚨 Días en cero</b><span>Lo que vuela y aun así tuvo días sin vender: no había. Revisa antes del pedido.</span></a>
     <a class="tarjeta" data-id="folio" href="https://claude.ai/code/artifact/dfa81d33-d226-4458-a6b9-1842435cab2f" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🎫 Buscar folio</b><span>¿No salió el folio por un fallo? Escribe qué compraron y aquí aparece.</span></a>
@@ -130,11 +131,12 @@ a.tarjeta.dragging{opacity:.9;box-shadow:0 10px 26px rgba(0,0,0,.28);border-colo
 </div>
 <script>
 (function(){
-  // KEY v9 (19-jul-2026): v8 + se AGREGÓ "🧾 Errores de costeo" en 2º lugar, junto a Auditoría de cortes
-  // (de ahí sale: el descuadre de un folio se resuelve costeando su nota) ->
-  // audc, errc, audp, compras, cero, folio, marg, calc, reinv, pend, mapa. Subir la version al cambiar el
-  // orden fijo o agregar/quitar tarjeta, si no el orden guardado en el dispositivo pisa el default.
-  var tools=document.getElementById("tools"), KEY="herrOrder_v9", reorder=false;
+  // KEY v10 (21-jul-2026): v9 + se AGREGÓ "🌙 Precio de noche" en 4º lugar, junto a Auditoría de precios
+  // (son hermanas: una es el precio de día, la otra el recargo de noche) ->
+  // audc, errc, audp, noche, compras, cero, folio, marg, calc, reinv, pend, mapa (12 tarjetas).
+  // Subir la version al cambiar el orden fijo o agregar/quitar tarjeta, si no el orden guardado en el
+  // dispositivo pisa el default y la tarjeta nueva queda invisible.
+  var tools=document.getElementById("tools"), KEY="herrOrder_v10", reorder=false;
   // aplicar orden guardado en este dispositivo
   try{
     var saved=JSON.parse(localStorage.getItem(KEY)||"null");
