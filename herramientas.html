@@ -137,6 +137,7 @@ a.tarjeta.dragging{opacity:.9;box-shadow:0 10px 26px rgba(0,0,0,.28);border-colo
     <a class="tarjeta" data-id="calc" href="https://claude.ai/code/artifact/987b5434-3da5-4045-bcf7-352feba66595" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🧮 Calculadora de compra</b><span>¿En cuánto se recupera una compra por descuento?</span></a>
     <a class="tarjeta" data-id="reinv" href="https://claude.ai/code/artifact/2893acf1-660a-4e2e-b19d-21bbe59b49c3" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>💰 Reinvertir / Liberar</b><span>Dónde meter dinero y dónde está atorado tu capital.</span></a>
     <a class="tarjeta" data-id="proy" href="https://claude.ai/code/artifact/024df90e-ec5b-4c03-a412-bf3130137c4f" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🏗️ Proyectos</b><span>Las inversiones grandes: qué cuestan, qué rinden y de dónde sale el dinero.</span></a>
+    <a class="tarjeta" data-id="solfrio" href="https://claude.ai/code/artifact/0c32e311-475d-4fc3-8b74-0e19e865cd71" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>📧 Solicitud de cotización</b><span>Cuarto frío: pídele exactamente lo mismo a todos los proveedores. Imprime, guarda PDF o copia al correo.</span></a>
     <a class="tarjeta" data-id="pend" href="https://claude.ai/code/artifact/24fdced5-4230-4a54-9faf-3469d1b3af51" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>📌 Pendientes</b><span>Tu bitácora, ordenada por lo que más mueve el dinero.</span></a>
     <a class="tarjeta" data-id="mapa" href="https://claude.ai/code/artifact/027dee6c-5bd6-487d-9c23-fb1d32cb8d02" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>🔄 Mapa de actualización</b><span>Actualiza SOLO ciertos tableros (rápido): copia una frase y pégamela en el chat.</span></a>
     <a class="tarjeta" data-id="manual" href="https://claude.ai/code/artifact/2b66ee66-9327-40f7-8d5e-184e3f933b84" target="_blank" rel="noopener noreferrer"><i class="grip">⠿</i><b>📚 Manuales</b><span>Los procedimientos de la tienda, cada uno contraído. Hoy: cargarle cambios a Venta Fácil sin teclearlos.</span></a>
@@ -158,6 +159,11 @@ a.tarjeta.dragging{opacity:.9;box-shadow:0 10px 26px rgba(0,0,0,.28);border-colo
   // corriendo (escribe _folios_sin_accion.json que consume Cortes), pero su artefacto ya no se publica.
   // v15 (29-jul-2026): nuevo ORDEN FIJO = el que Marco acomodó en su dispositivo y pidió como predeterminado.
   // Orden: compras, pedidos, audc, audp, inv, folio, cero, noche, marg, calc, reinv, pend, mapa, manual (14).
+  //
+  // 4-ago-2026: + "🏗️ Proyectos" (proy) y "📧 Solicitud de cotización" (solfrio). ⚠️ NO se subió la
+  // versión de KEY a propósito: subirla borraría el orden que Marco acomodó a mano. Como el orden
+  // guardado solo reacomoda los ids que conoce, una tarjeta NUEVA queda arriba de todas — que es
+  // justo donde conviene que aparezca. Subir KEY solo si se cambia el orden fijo para todos.
   var tools=document.getElementById("tools"), KEY="herrOrder_v15", reorder=false;
   // aplicar orden guardado en este dispositivo
   try{
