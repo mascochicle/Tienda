@@ -83,7 +83,13 @@ a.tarjeta:hover{border-color:var(--acc);border-style:solid;}
 a.tarjeta b{color:var(--acc);font-size:15px;line-height:1.25;display:inline-block;}
 a.tarjeta b::after{content:" 🔒";font-size:11px;}
 a.tarjeta span{display:block;font-size:13px;color:var(--sub);margin-top:4px;line-height:1.4;}
-.aviso{background:var(--acc-soft);border-radius:10px;padding:11px 14px;font-size:12.5px;color:var(--ink);}
+.aviso{background:var(--acc-soft);border-radius:10px;padding:7px 14px;font-size:12.5px;color:var(--ink);}
+.aviso summary{cursor:pointer;list-style:none;font-weight:600;color:var(--acc);user-select:none;padding:3px 0;}
+.aviso summary::-webkit-details-marker{display:none;}
+.aviso summary::after{content:" ▸";font-size:10px;}
+.aviso[open] summary::after{content:" ▾";}
+.aviso summary:active{opacity:.6;}
+.avisoc{padding:5px 0 4px;line-height:1.45;}
 footer{font-size:11.5px;color:var(--sub);text-align:center;}
 /* ---- reordenar (arrastrar) ---- */
 .bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
@@ -105,7 +111,13 @@ a.tarjeta.dragging{opacity:.9;box-shadow:0 10px 26px rgba(0,0,0,.28);border-colo
     <p>Las que traen costos, ganancia y capital. Solo tú entras: piden iniciar sesión con tu cuenta.</p>
   </header>
 
-  <div class="aviso"><b>Los socios no ven nada de esto.</b> Estas páginas no viven en el sitio: son privadas y piden tu login. El link por sí solo no revela ningún dato.</div>
+  <!-- PLEGADO (Marco 4-ago-2026: «aquí no lo hiciste colapsable»). Ya se lo sabe y le robaba una
+       franja de pantalla en el celular. Se queda a un toque, no se borra: es lo que contesta la duda
+       de «¿esto lo alcanzan a ver los socios?» cuando pasa tiempo sin abrirlo. -->
+  <details class="aviso">
+    <summary>🔒 ¿Los socios ven esto?</summary>
+    <div class="avisoc"><b>No ven nada de esto.</b> Estas páginas no viven en el sitio: son privadas y piden tu login. El link por sí solo no revela ningún dato.</div>
+  </details>
 
   <div class="bar">
     <span class="rhint" id="rhint" style="display:none">arrastra por el ⠿ · toca «listo» al terminar</span>
