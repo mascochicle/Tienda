@@ -163,6 +163,16 @@ footer a{color:var(--acc);}
 .vn{font-size:9px;font-weight:700;line-height:11px;height:11px;white-space:nowrap;font-variant-numeric:tabular-nums;}
 .vn.b{color:var(--acc);} .vn.o{color:var(--bar2);} .vn.neg{color:var(--neg);}
 .vd{font-size:8.5px;color:var(--sub);line-height:12px;height:12px;margin-top:2px;font-variant-numeric:tabular-nums;}
+
+.pleg{margin:0 0 10px;}
+.pleg>summary{cursor:pointer;list-style:none;font-size:11.5px;font-weight:700;color:var(--sub);
+  padding:4px 0;user-select:none;}
+.pleg>summary::-webkit-details-marker{display:none;}
+.pleg>summary::after{content:" \25B8";font-size:10px;}
+.pleg[open]>summary::after{content:" \25BE";}
+.pleg>summary:active{color:var(--acc);}
+.plegc{border-left:2px solid var(--line);padding-left:10px;margin-top:3px;}
+.plegc>p{margin:0 0 7px;} .plegc>p:last-child{margin-bottom:0;}
 </style>
 <div class="wrap">
   <header>
@@ -193,7 +203,7 @@ footer a{color:var(--acc);}
     <div class="stack" id="dnstack"></div>
     <div class="dn2" id="dn2"></div>
     <div id="dnsubs"></div>
-    <p class="nota">De noche se cobra el precio de día + un ajuste en pesos que va casi todo a utilidad (por eso la noche deja más margen). Barra por subgrupo = proporción día/noche de su venta.</p>
+    <details class="pleg"><summary>ℹ️ Cómo leer esto</summary><div class="plegc"><p class="nota">De noche se cobra el precio de día + un ajuste en pesos que va casi todo a utilidad (por eso la noche deja más margen). Barra por subgrupo = proporción día/noche de su venta.</p></div></details>
   </div>
   <div class="card">
     <h2>Productos que más venden de noche · últimos 6 meses</h2>
