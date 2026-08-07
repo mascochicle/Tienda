@@ -431,5 +431,173 @@ document.addEventListener("click", e=>{ if(e.target.closest(".spark")) return;
 render();
 </script>
 
+<script>
+(function(){
+if(window.Reordenar) return;                       // una sola vez por página
+var CSS = ''
++ '.rd-bar{display:flex;align-items:center;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin:2px 0 0;}'
++ '.rd-btn{background:none;border:none;color:var(--sub,#6d675c);opacity:.65;font-size:12.5px;'
++   'font-weight:600;cursor:pointer;font-family:inherit;padding:2px 4px;}'
++ '.rd-btn.on{color:var(--acc,#1d6b4f);opacity:1;}'
++ '.rd-hint{font-size:11.5px;color:var(--sub,#6d675c);}'
++ '.rd-grip{display:none;position:absolute;top:7px;right:9px;font-style:normal;font-size:15px;'
++   'color:var(--sub,#6d675c);line-height:1;pointer-events:none;}'
++ '.rd-on .rd-item{position:relative;cursor:grab;touch-action:none;-webkit-user-select:none;'
++   'user-select:none;-webkit-user-drag:none;outline:1px solid var(--acc,#1d6b4f);'
++   'outline-offset:-1px;border-radius:10px;}'
++ '.rd-on .rd-item .rd-grip{display:block;}'
+/* la que arrastras se LEVANTA; las demás se hacen a un lado solas (como en el celular) */
++ '.rd-drag{box-shadow:0 12px 30px rgba(0,0,0,.30);border-color:var(--acc,#1d6b4f);'
++   'transform:scale(1.03);transition:transform .12s ease,box-shadow .12s ease;}'
+/* el HUECO: contorno delgado, sin relleno. Lo que comunica el movimiento son las OTRAS tarjetas */
++ '.rd-ph{border:1.5px solid var(--acc,#1d6b4f);border-radius:10px;background:transparent;'
++   'opacity:.4;box-sizing:border-box;}';
+var st=document.createElement("style"); st.textContent=CSS; document.head.appendChild(st);
+
+var SUAVE="transform .18s cubic-bezier(.2,.7,.3,1)";
+
+window.Reordenar = function(o){
+  var CONT=document.querySelector(o.cont); if(!CONT) return;
+  var LISTA=function(){ return [].slice.call(CONT.querySelectorAll(o.item)); };
+  // `closest()` no entiende ":scope >" — para buscar hacia arriba se usa el selector pelado y
+  // luego se confirma que el elemento encontrado sí es uno de los reordenables.
+  var SELC=o.item.replace(/^\s*:scope\s*>\s*/,"");
+  if(LISTA().length < (o.min||2)) return;
+
+  // id estable: el que ya traiga la tarjeta, o el título de la sección. Sobrevive a regenerar.
+  function ID(el){
+    if(el.dataset.rd) return el.dataset.rd;
+    // ⚠️ tal cual, sin prefijo: Marco ya tiene órdenes guardadas con estos ids.
+    var v = el.dataset.id || (el.dataset.i!=null ? el.dataset.i : "");
+    if(!v){
+      var h=el.querySelector("h1,h2,h3,h4,summary,b");
+      v=((h?h.textContent:el.textContent)||"").trim().slice(0,44).toLowerCase()
+         .replace(/[^a-z0-9áéíóúñü ]/g,"").replace(/\s+/g,"-");
+    }
+    el.dataset.rd=v; return v;
+  }
+  // reacomodar SIN mover a los vecinos que no son tarjetas: se ancla cada casilla con una marca
+  function recolocar(nuevo, viejo){
+    var m=viejo.map(function(el){ var t=document.createTextNode(""); el.parentNode.insertBefore(t,el); return t; });
+    nuevo.forEach(function(el,i){ m[i].parentNode.insertBefore(el, m[i]); });
+    m.forEach(function(t){ if(t.parentNode) t.parentNode.removeChild(t); });
+  }
+  // restaurar el orden de ESTE dispositivo. Lo que el guardado no conoce (secciones nuevas) va ARRIBA.
+  try{
+    var sv=JSON.parse(localStorage.getItem(o.clave)||"null");
+    if(sv&&sv.length){
+      var act=LISTA(), por={}; act.forEach(function(el){ por[ID(el)]=el; });
+      var conoc=[]; sv.forEach(function(id){ if(por[id]){ conoc.push(por[id]); por[id]=null; } });
+      var nuev=act.filter(function(el){ return por[ID(el)]!==null; });
+      if(conoc.length) recolocar(nuev.concat(conoc), act);
+    }
+  }catch(e){}
+  function guarda(){ try{ localStorage.setItem(o.clave, JSON.stringify(LISTA().map(ID))); }catch(e){} }
+
+  // barra + agarraderas
+  var ini=LISTA(); if(!ini.length) return;
+  ini.forEach(function(el){ ID(el); el.classList.add("rd-item");
+    if(!el.querySelector(":scope > .rd-grip")){
+      var g=document.createElement("i"); g.className="rd-grip"; g.textContent="⠿"; el.appendChild(g); } });
+  var bar=document.createElement("div"); bar.className="rd-bar";
+  bar.innerHTML='<span class="rd-hint" style="display:none">'
+    + (o.hint || "arrástralas a donde quieras · toca «listo» al terminar")
+    + '</span><button class="rd-btn" type="button">⠿ reordenar</button>';
+  // la barra va ARRIBA de lo reordenable: fuera del contenedor cuando el contenedor ES la rejilla
+  // (si no, la barra se volvería una celda más), o antes de la primera sección cuando el contenedor
+  // es el envoltorio de toda la página.
+  if(o.barra==="fuera" && CONT.parentNode) CONT.parentNode.insertBefore(bar, CONT);
+  else ini[0].parentNode.insertBefore(bar, ini[0]);
+  var btn=bar.querySelector(".rd-btn"), hint=bar.querySelector(".rd-hint"), reord=false;
+  btn.addEventListener("click", function(){
+    reord=!reord; CONT.classList.toggle("rd-on", reord);
+    btn.classList.toggle("on", reord); btn.textContent = reord ? "✓ listo" : "⠿ reordenar";
+    hint.style.display = reord ? "" : "none";
+  });
+
+  // ── ARRASTRE ────────────────────────────────────────────────────────────────────────────────
+  var drag=null, ph=null, offX=0, offY=0, pend=null, sx=0, sy=0, moved=false;
+  var SLOTS=null, ITEMS=null, OTROS=null, FROM=0, TO=0, DW=0, DH=0, aterriza=false;
+  function _casilla(el){                       // coordenadas de PÁGINA: sobreviven al scroll
+    var r=el.getBoundingClientRect();
+    return {x:r.left+window.scrollX, y:r.top+window.scrollY, w:r.width, h:r.height};
+  }
+  function acomoda(){                          // cada una a la casilla que le tocaría si soltaras YA
+    var f=SLOTS[FROM], t=SLOTS[TO];
+    ph.style.transform = (TO===FROM) ? "" : "translate("+(t.x-f.x)+"px,"+(t.y-f.y)+"px)";
+    OTROS.forEach(function(el,k){
+      var a=SLOTS[k<FROM ? k : k+1], b=SLOTS[k<TO ? k : k+1];
+      el.style.transform = (a===b) ? "" : "translate("+(b.x-a.x)+"px,"+(b.y-a.y)+"px)";
+    });
+  }
+  CONT.addEventListener("pointerdown", function(e){
+    if(!reord || aterriza) return; var c=e.target.closest(SELC);
+    if(!c || LISTA().indexOf(c)<0) return;
+    pend=c; sx=e.clientX; sy=e.clientY; moved=false;
+  });
+  CONT.addEventListener("pointermove", function(e){
+    if(pend && !drag){
+      if(Math.hypot(e.clientX-sx, e.clientY-sy)<8) return;   // umbral: un toque no reordena
+      moved=true; var c=pend, r=c.getBoundingClientRect(); drag=c;
+      offX=e.clientX-r.left; offY=e.clientY-r.top; DW=r.width; DH=r.height;
+      ITEMS=LISTA(); FROM=ITEMS.indexOf(c); TO=FROM;
+      OTROS=ITEMS.filter(function(x){ return x!==c; });
+      ph=document.createElement("div"); ph.className="rd-ph"; ph.style.height=DH+"px";
+      c.parentNode.insertBefore(ph, c); c.classList.add("rd-drag");
+      // 🐛 si la tarjeta trae `min-height:100%` (para quedar pareja en su fila), al pasar a
+      // position:fixed ese 100% se mide contra LA VENTANA y la tarjeta se estira hasta el fondo.
+      // Fijar `height` no alcanza: min-height le gana. Por eso se neutraliza mientras se arrastra.
+      c.style.position="fixed"; c.style.width=DW+"px"; c.style.height=DH+"px"; c.style.minHeight="0";
+      c.style.margin="0"; c.style.zIndex="60";
+      c.style.left=(e.clientX-offX)+"px"; c.style.top=(e.clientY-offY)+"px";
+      try{ c.setPointerCapture(e.pointerId); }catch(_){}
+      // ── LA ÚLTIMA MEDICIÓN: de aquí en adelante la retícula es intocable ──
+      SLOTS=ITEMS.map(function(el,i){ return _casilla(i===FROM ? ph : el); });
+      OTROS.concat([ph]).forEach(function(el){ el.style.transition=SUAVE; });
+    }
+    if(!drag) return; e.preventDefault();
+    drag.style.left=(e.clientX-offX)+"px"; drag.style.top=(e.clientY-offY)+"px";
+    // la casilla más cercana al centro DE LA TARJETA (no al dedo: se siente mejor)
+    var px=e.clientX-offX+DW/2+window.scrollX, py=e.clientY-offY+DH/2+window.scrollY;
+    var mejor=TO, dm=Infinity;
+    for(var i=0;i<SLOTS.length;i++){
+      var s=SLOTS[i], d=Math.hypot(px-(s.x+s.w/2), py-(s.y+s.h/2));
+      if(d<dm){ dm=d; mejor=i; }
+    }
+    if(mejor!==TO){
+      var a=SLOTS[TO], da=Math.hypot(px-(a.x+a.w/2), py-(a.y+a.h/2));
+      if(da-dm > Math.min(a.w,a.h)*0.22){ TO=mejor; acomoda(); }   // HISTÉRESIS
+    }
+  });
+  function fin(){
+    pend=null; if(!drag || aterriza) return;
+    aterriza=true;
+    var d=drag, p=ph, to=TO, otros=OTROS, viejo=ITEMS, s=SLOTS[to];
+    drag=null; ph=null;
+    // aterrizaje: se va sola a su casilla y baja, como al soltar un icono en el teléfono
+    d.style.transition="left .19s cubic-bezier(.2,.7,.3,1),top .19s cubic-bezier(.2,.7,.3,1),"
+                      +"transform .19s ease,box-shadow .19s ease";
+    d.style.left=(s.x-window.scrollX)+"px"; d.style.top=(s.y-window.scrollY)+"px";
+    d.classList.remove("rd-drag");
+    p.style.transition="opacity .15s ease"; p.style.opacity="0";
+    setTimeout(function(){
+      otros.forEach(function(el){ el.style.transition=""; el.style.transform=""; });
+      if(p.parentNode) p.parentNode.removeChild(p);
+      ["position","width","height","minHeight","left","top","margin","zIndex","transition","transform"]
+        .forEach(function(k){ d.style[k]=""; });
+      var nuevo=otros.slice(); nuevo.splice(to,0,d);
+      recolocar(nuevo, viejo);
+      aterriza=false; guarda();
+    }, 200);
+  }
+  CONT.addEventListener("pointerup", fin);
+  CONT.addEventListener("pointercancel", fin);
+  // tras ARRASTRAR no abre nada; un TOQUE sí (link, modal, plegable…)
+  CONT.addEventListener("click", function(e){
+    if(moved){ e.preventDefault(); e.stopPropagation(); moved=false; } }, true);
+};
+})();
+</script>
+<script>Reordenar({cont:".wrap",item:":scope > .card",clave:"orden_gastos_v1",min:3,barra:"dentro",hint:"arrastra las secciones al orden que te sirva · «listo» al terminar"});</script>
 </body>
 </html>
