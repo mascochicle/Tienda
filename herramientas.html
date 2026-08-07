@@ -95,8 +95,10 @@ footer{font-size:11.5px;color:var(--sub);text-align:center;}
 #tools.reorder a.tarjeta{border-style:solid;border-color:var(--acc);cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-user-drag:none;padding-left:34px;}
 a.tarjeta .grip{display:none;position:absolute;left:9px;top:0;bottom:0;align-items:center;font-size:18px;color:var(--sub);font-style:normal;}
 #tools.reorder a.tarjeta .grip{display:flex;}
-a.tarjeta.dragging{opacity:.9;box-shadow:0 10px 26px rgba(0,0,0,.28);border-color:var(--acc);border-style:solid;}
-.ph{border:2px dashed var(--acc);border-radius:10px;background:var(--acc-soft);box-sizing:border-box;}
+a.tarjeta.dragging{box-shadow:0 12px 30px rgba(0,0,0,.30);border-color:var(--acc);border-style:solid;
+  transform:scale(1.03);transition:transform .12s ease,box-shadow .12s ease;}
+/* el hueco, como en One UI: contorno delgado. Lo que comunica el movimiento son las OTRAS tarjetas. */
+.ph{border:1.5px solid var(--acc);border-radius:10px;background:transparent;opacity:.4;box-sizing:border-box;}
 </style>
 <div class="wrap">
   <!-- 5-ago-2026: fuera el subtítulo y el plegable «¿Los socios ven esto?». Marco: *«mejor quita
@@ -170,39 +172,79 @@ a.tarjeta.dragging{opacity:.9;box-shadow:0 10px 26px rgba(0,0,0,.28);border-colo
     b.textContent = reorder ? "✓ listo" : "⠿ reordenar";
     h.style.display = reorder ? "inline" : "none";
   };
-  // arrastre pointer (celular+escritorio): TOCAR abre la herramienta; solo ARRASTRAR (>8px) reordena
+  // arrastre pointer (celular+escritorio): TOCAR abre la herramienta; solo ARRASTRAR (>8px) reordena.
+  // 7-ago-2026 — Marco: *«no me gusta, tiembla erráticamente cuando los quiero reacomodar»*. Era un LAZO:
+  // se movía el hueco dentro de la cuadrícula (reflow -> cambian las posiciones) y en el pointermove
+  // siguiente se volvían a MEDIR esas mismas posiciones. Medir lo que uno acaba de mover = oscilación.
+  // Ahora, como en el teléfono: al agarrar se CONGELA la retícula (última medición) y las demás tarjetas
+  // solo se DESLIZAN con transform entre casillas fijas. El orden real se escribe hasta que sueltas.
   var drag=null, ph=null, offX=0, offY=0, pend=null, sx=0, sy=0, moved=false;
+  var SLOTS=null, FROM=0, TO=0, OTROS=null, DW=0, DH=0, aterriza=false;
+  var SUAVE="transform .18s cubic-bezier(.2,.7,.3,1)";
+  function _casilla(el){                     // coordenadas de PÁGINA: sobreviven al scroll
+    var r=el.getBoundingClientRect();
+    return {x:r.left+window.scrollX, y:r.top+window.scrollY, w:r.width, h:r.height};
+  }
+  function acomoda(){                        // cada tarjeta a la casilla que le tocaría si soltaras AHORA
+    var f=SLOTS[FROM], t=SLOTS[TO];
+    ph.style.transform = (TO===FROM) ? "" : "translate("+(t.x-f.x)+"px,"+(t.y-f.y)+"px)";
+    OTROS.forEach(function(el,k){
+      var a=SLOTS[k<FROM ? k : k+1], b=SLOTS[k<TO ? k : k+1];
+      el.style.transform = (a===b) ? "" : "translate("+(b.x-a.x)+"px,"+(b.y-a.y)+"px)";
+    });
+  }
   tools.addEventListener("pointerdown", function(e){
-    if(!reorder) return; var card=e.target.closest("a.tarjeta"); if(!card) return;
+    if(!reorder || aterriza) return; var card=e.target.closest("a.tarjeta"); if(!card) return;
     pend=card; sx=e.clientX; sy=e.clientY; moved=false;
   });
   tools.addEventListener("pointermove", function(e){
     if(pend && !drag){
-      if(Math.hypot(e.clientX-sx, e.clientY-sy)<8) return;   // UMBRAL 2D: un toque no reordena, solo un arrastre
-      moved=true; var card=pend, r=card.getBoundingClientRect(); drag=card; offX=e.clientX-r.left; offY=e.clientY-r.top;
+      if(Math.hypot(e.clientX-sx, e.clientY-sy)<8) return;   // UMBRAL 2D: un toque no reordena
+      moved=true; var card=pend, r=card.getBoundingClientRect(); drag=card;
+      offX=e.clientX-r.left; offY=e.clientY-r.top; DW=r.width; DH=r.height;
       ph=document.createElement("div"); ph.className="ph"; ph.style.height=r.height+"px";
       card.parentNode.insertBefore(ph, card); card.classList.add("dragging");
-      card.style.position="fixed"; card.style.width=r.width+"px"; card.style.left=(e.clientX-offX)+"px";
-      card.style.top=(e.clientY-offY)+"px"; card.style.margin="0"; card.style.zIndex="30";
+      card.style.position="fixed"; card.style.width=DW+"px"; card.style.height=DH+"px";
+      card.style.left=(e.clientX-offX)+"px"; card.style.top=(e.clientY-offY)+"px";
+      card.style.margin="0"; card.style.zIndex="30";
       try{ card.setPointerCapture(e.pointerId); }catch(_){}
+      var flujo=[].slice.call(tools.children).filter(function(n){ return n!==drag; });
+      SLOTS=flujo.map(_casilla); FROM=flujo.indexOf(ph); TO=FROM;
+      OTROS=flujo.filter(function(n){ return n!==ph; });
+      OTROS.concat([ph]).forEach(function(el){ el.style.transition=SUAVE; });
     }
     if(!drag) return; e.preventDefault();
     drag.style.left=(e.clientX-offX)+"px"; drag.style.top=(e.clientY-offY)+"px";
-    // GRID 2 columnas -> insertar por CERCANÍA 2D: la tarjeta cuyo centro está más cerca del cursor; va
-    // ANTES o DESPUÉS según si el cursor quedó a su izquierda-arriba o derecha-abajo (orden de lectura).
-    var others=[].slice.call(tools.querySelectorAll("a.tarjeta:not(.dragging)"));
-    var best=null, bestD=Infinity, insAfter=false;
-    others.forEach(function(c){ var r=c.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2;
-      var d=Math.hypot(e.clientX-cx, e.clientY-cy);
-      if(d<bestD){ bestD=d; best=c; insAfter=(e.clientY>cy+r.height*0.15)||(Math.abs(e.clientY-cy)<=r.height*0.6 && e.clientX>cx); }
-    });
-    if(best) tools.insertBefore(ph, insAfter?best.nextSibling:best);
-    else if(others.length) tools.insertBefore(ph, others[0]);
+    var px=e.clientX-offX+DW/2+window.scrollX, py=e.clientY-offY+DH/2+window.scrollY;
+    var mejor=TO, dm=Infinity;
+    for(var i=0;i<SLOTS.length;i++){
+      var s=SLOTS[i], d=Math.hypot(px-(s.x+s.w/2), py-(s.y+s.h/2));
+      if(d<dm){ dm=d; mejor=i; }
+    }
+    if(mejor!==TO){
+      // HISTÉRESIS: la casilla nueva tiene que ganarle CLARO. Sin esto, en la frontera entre dos
+      // casillas el pulso de la mano salta de una a otra en cada cuadro — eso también es temblor.
+      var a=SLOTS[TO], da=Math.hypot(px-(a.x+a.w/2), py-(a.y+a.h/2));
+      if(da-dm > Math.min(a.w,a.h)*0.22){ TO=mejor; acomoda(); }
+    }
   });
-  function endDrag(){ pend=null; if(!drag) return;
-    drag.classList.remove("dragging");
-    drag.style.position=""; drag.style.width=""; drag.style.left=""; drag.style.top=""; drag.style.margin=""; drag.style.zIndex="";
-    tools.insertBefore(drag, ph); ph.remove(); ph=null; drag=null; saveOrder();
+  function endDrag(){
+    pend=null; if(!drag || aterriza) return;
+    aterriza=true;
+    var d=drag, p=ph, to=TO, otros=OTROS, s=SLOTS[to];
+    drag=null; ph=null;
+    d.style.transition="left .19s cubic-bezier(.2,.7,.3,1),top .19s cubic-bezier(.2,.7,.3,1),"
+                      +"transform .19s ease,box-shadow .19s ease";
+    d.style.left=(s.x-window.scrollX)+"px"; d.style.top=(s.y-window.scrollY)+"px";
+    d.classList.remove("dragging");
+    p.style.transition="opacity .15s ease"; p.style.opacity="0";
+    setTimeout(function(){
+      otros.concat([p]).forEach(function(el){ el.style.transition=""; el.style.transform=""; });
+      d.style.cssText="";
+      var orden=otros.slice(); orden.splice(to,0,d);
+      orden.forEach(function(el){ tools.appendChild(el); });   // appendChild MUEVE: reescribe el orden
+      p.remove(); aterriza=false; saveOrder();
+    }, 200);
   }
   tools.addEventListener("pointerup", endDrag); tools.addEventListener("pointercancel", endDrag);
   tools.addEventListener("click", function(e){ if(moved){ e.preventDefault(); e.stopPropagation(); moved=false; } }, true);   // tras ARRASTRE no abre; un toque SÍ abre
