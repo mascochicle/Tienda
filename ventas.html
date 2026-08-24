@@ -178,9 +178,15 @@ footer a{color:var(--acc);}
 .vline.b{stroke:var(--bar);} .vline.o{stroke:var(--bar2);} .vline.v{stroke:var(--bar3);}
 .vdot{stroke:var(--card);stroke-width:1.5;}
 .vdot.b{fill:var(--bar);} .vdot.o{fill:var(--bar2);} .vdot.v{fill:var(--bar3);} .vdot.neg{fill:var(--neg);}
-.vn{font-size:9px;font-weight:700;font-variant-numeric:tabular-nums;}
-.vn.b{fill:var(--acc);} .vn.o{fill:var(--bar2);} .vn.v{fill:var(--bar3);} .vn.neg{fill:var(--neg);}
 .vd{font-size:8.5px;fill:var(--sub);font-variant-numeric:tabular-nums;}
+/* 🎯 la cantidad ya NO se pinta en todos los puntos: se pide tocando uno (Marco 24-ago-2026).
+   Antes iban las 31 en 9px, alternadas, y aun así el declutter escondía varias y se leían mal. */
+.vhit{fill:transparent;cursor:pointer;}
+.vdot.sel{r:5;stroke-width:2;}
+.vtip rect{fill:var(--ink);opacity:.92;rx:6;}
+.vtip text{fill:var(--card);font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;}
+.vtip .sub{font-size:11px;font-weight:600;opacity:.75;}
+@media (max-width:560px){ .vtip text{font-size:19px;} .vtip .sub{font-size:14px;} .vd{font-size:11.5px;} }
 .vzero{stroke:var(--line);stroke-width:1;}
 /* 📱 en el celular el SVG se encoge (viewBox 520 dentro de ~350px) y el texto se iría a ~6px.
    El font-size va en unidades del viewBox, así que subirlo aquí lo devuelve a un tamaño legible. */
@@ -454,17 +460,16 @@ function dayChartHTML(y,m,kind){
   if(negMax>0) svg += '<line class="vzero" x1="'+PL+'" y1="'+y0.toFixed(1)+'" x2="'+(W-PR)+'" y2="'+y0.toFixed(1)+'"/>';
   svg += '<polyline class="vline '+cls+'" points="'+pts.map(p=>p[0].toFixed(1)+","+p[1].toFixed(1)).join(" ")+'"/>';
   // marcadores + su cantidad; el punto se pinta rojo si el día salió negativo
-  // ⭐ LAS CANTIDADES SE ALTERNAN ARRIBA/ABAJO. Con 31 días caben ~17px por punto y una etiqueta
-  //    («$13k») mide ~24px: puestas todas del mismo lado, el declutter escondía 8 de 31 — y Marco
-  //    pidió ver LA CANTIDAD, no la mitad. Alternando, cada lado tiene ~34px y caben todas.
-  //    El declutter se queda igual como red de seguridad para pantallas angostas.
+  // los puntos van limpios; el número se pide tocando. Cada punto lleva una zona de toque
+  // invisible mucho más grande (r=13) porque en el celular un círculo de 3px es imposible de dar.
   pts.forEach((p,i)=>{
     const v=vals[i], neg=v<0;
-    svg += '<circle class="vdot '+(neg?"neg":cls)+'" cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="2.8"/>';
-    const arriba = (i%2===0) !== (v<0);        // los negativos empiezan del lado contrario
-    svg += '<text class="vn '+(neg?"neg":cls)+'" x="'+p[0].toFixed(1)+'" y="'+(arriba?p[1]-6:p[1]+11).toFixed(1)
-        +'" text-anchor="middle" data-mag="'+Math.abs(v)+'">'+fmtd(v)+'</text>';
+    svg += '<circle class="vdot '+(neg?"neg":cls)+'" data-dot="'+i+'" cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="2.8"/>';
   });
+  pts.forEach((p,i)=>{
+    svg += '<circle class="vhit" data-i="'+i+'" data-v="'+vals[i]+'" data-d="'+days[i]+'" cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="13"/>';
+  });
+  svg += '<g class="vtip" id="vtip" style="display:none"></g>';
   // el día, abajo de todo
   pts.forEach((p,i)=>{ svg += '<text class="vd" x="'+p[0].toFixed(1)+'" y="'+(PT+CH+13)+'" text-anchor="middle">'+days[i]+'</text>'; });
   svg += '</svg>';
@@ -474,28 +479,45 @@ function dayChartHTML(y,m,kind){
   let leg="",nota;
   if(kind==="op"){
     leg='<div class="mleg"><span><i style="background:var(--bar2)"></i>ganó ese día</span><span><i style="background:var(--neg)"></i>no cubrió su parte del gasto</span></div>';
-    nota="Total del mes: <b>"+fmt(totV)+"</b>. Cada día = su utilidad bruta menos el gasto del mes ("+fmt(gastos)+") repartido por día (≈"+fmt(gpd)+"/día). Por eso un día flojo puede salir en rojo.";
+    nota="Total del mes: <b>"+fmt(totV)+"</b>. Cada día = su utilidad bruta menos el gasto del mes ("+fmt(gastos)+") repartido por día (≈"+fmt(gpd)+"/día). Por eso un día flojo puede salir en rojo. 👆 Toca un punto para ver la cantidad.";
   } else {
     nota = kind==="v"
-      ? "Total del mes: <b>"+fmt(totV)+"</b>. Cada barra = lo que entró por caja ese día."
-      : "Total del mes: <b>"+fmt(totV)+"</b>. Cada barra = venta − costo de la mercancía de ese día.";
+      ? "Total del mes: <b>"+fmt(totV)+"</b>. Cada punto = lo que entró por caja ese día. 👆 Toca un punto para ver la cantidad."
+      : "Total del mes: <b>"+fmt(totV)+"</b>. Cada punto = venta − costo de la mercancía de ese día. 👆 Toca un punto para ver la cantidad.";
   }
   return head+leg+bars+'<p class="tap">'+nota+'</p>';
 }
 function dayModal(y,m,kind){
   $("dbox").innerHTML='<button class="mclose" onclick="closeDay()">✕</button>'+dayChartHTML(y,m,kind);
   $("dmodal").style.display="flex";
-  declutterDay($("dbox"));
+  armarToque($("dbox"));
 }
 function closeDay(){ $("dmodal").style.display="none"; }
-function declutterDay(box){   // oculta los números que chocarían (deja los días más grandes); las barras quedan todas
-  const chart=box.querySelector(".vsvg"); if(!chart)return;
-  const labels=[].slice.call(chart.querySelectorAll(".vn"));
-  labels.sort((a,b)=>(+b.dataset.mag)-(+a.dataset.mag));
-  const placed=[];
-  labels.forEach(v=>{const r=v.getBoundingClientRect();
-    const hit=placed.some(p=>r.left<p.right+1&&p.left<r.right+1&&r.top<p.bottom+1&&p.top<r.bottom+1);
-    if(hit)v.style.visibility="hidden"; else placed.push(r);});
+// 🎯 TOCAR UN PUNTO -> etiqueta con su cantidad. Sustituye al `declutterDay` viejo, que escondía
+//    etiquetas cuando chocaban: ya no hay etiquetas permanentes que esconder.
+function armarToque(box){
+  const svg=box.querySelector(".vsvg"); if(!svg)return;
+  const tip=svg.querySelector("#vtip");
+  const W=+svg.getAttribute("viewBox").split(" ")[2];
+  function ocultar(){ tip.style.display="none"; svg.querySelectorAll(".vdot.sel").forEach(d=>d.classList.remove("sel")); }
+  function mostrar(hit){
+    const i=hit.dataset.i, v=+hit.dataset.v, d=hit.dataset.d;
+    const cx=+hit.getAttribute("cx"), cy=+hit.getAttribute("cy");
+    ocultar();
+    const dot=svg.querySelector('.vdot[data-dot="'+i+'"]'); if(dot)dot.classList.add("sel");
+    const txt=fmtd(v), sub="día "+d;
+    // ancho estimado del globo: el número manda (15px ≈ 8.3px por carácter)
+    const w=Math.max(58, txt.length*8.6+22), h=34;
+    let x=cx-w/2; x=Math.max(2, Math.min(W-w-2, x));      // que no se salga por los lados
+    let y=cy-h-9; const abajo = y<2; if(abajo) y=cy+9;     // si no cabe arriba, va abajo
+    tip.innerHTML='<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+h+'"/>'
+      +'<text x="'+(x+w/2).toFixed(1)+'" y="'+(y+15).toFixed(1)+'" text-anchor="middle">'+txt+'</text>'
+      +'<text class="sub" x="'+(x+w/2).toFixed(1)+'" y="'+(y+27).toFixed(1)+'" text-anchor="middle">'+sub+'</text>';
+    tip.style.display="";
+  }
+  svg.addEventListener("click",e=>{ const h=e.target.closest(".vhit"); if(h)mostrar(h); else ocultar(); });
+  svg.addEventListener("mousemove",e=>{ const h=e.target.closest(".vhit"); if(h)mostrar(h); });
+  svg.addEventListener("mouseleave",ocultar);
 }
 function onBar(ev){
   const bar=ev.target.closest(".bar.clik"); if(!bar)return;
