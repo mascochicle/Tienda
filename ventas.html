@@ -152,17 +152,21 @@ footer a{color:var(--acc);}
 .msub{font-size:12px;color:var(--sub);margin:0 0 4px;}
 .mleg{font-size:11px;color:var(--sub);margin:0 0 8px;display:flex;gap:12px;flex-wrap:wrap;}
 .mleg i{width:10px;height:10px;border-radius:2px;display:inline-block;margin-right:4px;vertical-align:-1px;}
-.vchart{display:flex;align-items:flex-end;gap:2px;padding:22px 1px 0;overflow:visible;}
-.vcol{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;}
-.vup{width:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;}
-.vdn{width:100%;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;}
-.vchart.hasneg .vup{box-shadow:0 1px 0 var(--line);}
-.vb{width:100%;display:block;}
-.vb.pos{border-radius:3px 3px 0 0;} .vb.neg{border-radius:0 0 3px 3px;background:var(--neg);}
-.vb.b{background:var(--bar);} .vb.o{background:var(--bar2);} .vb.v{background:var(--bar3);}
-.vn{font-size:9px;font-weight:700;line-height:11px;height:11px;white-space:nowrap;font-variant-numeric:tabular-nums;}
-.vn.b{color:var(--acc);} .vn.o{color:var(--bar2);} .vn.v{color:var(--bar3);} .vn.neg{color:var(--neg);}
-.vd{font-size:8.5px;color:var(--sub);line-height:12px;height:12px;margin-top:2px;font-variant-numeric:tabular-nums;}
+/* 📈 LÍNEA CON MARCADORES (Marco 24-ago-2026: «línea con marcadores y su cantidad, en lugar de barras»).
+   Va en SVG y no en divs: con 31 puntos la línea necesita coordenadas reales, no cajas apiladas. */
+.vsvg{width:100%;height:auto;display:block;overflow:visible;}
+.vline{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round;}
+.vline.b{stroke:var(--bar);} .vline.o{stroke:var(--bar2);} .vline.v{stroke:var(--bar3);}
+.vdot{stroke:var(--card);stroke-width:1.5;}
+.vdot.b{fill:var(--bar);} .vdot.o{fill:var(--bar2);} .vdot.v{fill:var(--bar3);} .vdot.neg{fill:var(--neg);}
+.vn{font-size:9px;font-weight:700;font-variant-numeric:tabular-nums;}
+.vn.b{fill:var(--acc);} .vn.o{fill:var(--bar2);} .vn.v{fill:var(--bar3);} .vn.neg{fill:var(--neg);}
+.vd{font-size:8.5px;fill:var(--sub);font-variant-numeric:tabular-nums;}
+.vzero{stroke:var(--line);stroke-width:1;}
+/* 📱 en el celular el SVG se encoge (viewBox 520 dentro de ~350px) y el texto se iría a ~6px.
+   El font-size va en unidades del viewBox, así que subirlo aquí lo devuelve a un tamaño legible. */
+@media (max-width:560px){ .vn{font-size:12.5px;} .vd{font-size:11.5px;} }
+.vgrid{stroke:var(--line);stroke-width:1;stroke-dasharray:2 3;opacity:.7;}
 
 .pleg{margin:0 0 10px;}
 .pleg>summary{cursor:pointer;list-style:none;font-size:11.5px;font-weight:700;color:var(--sub);
@@ -406,25 +410,37 @@ function dayChartHTML(y,m,kind){
   const vals=days.map(d=>{const row=dd[String(d)]; return kind==="v"?row[0]:(kind==="op"?row[1]-gpd:row[1]);});
   const mx=Math.max(...vals,0), mn=Math.min(...vals,0);
   const posMax=Math.max(mx,0)||1, negMax=Math.max(-mn,0);
-  const CH=168, range=posMax+negMax;
-  const upH=negMax>0?Math.max(26,Math.round(CH*posMax/range)):CH;
-  const dnH=negMax>0?CH-upH:0;
-  const cls=kind==="op"?"o":(kind==="v"?"v":"b");
-  let bars="";
-  for(let i=0;i<days.length;i++){
-    const d=days[i],v=vals[i],mag=Math.abs(v);
-    const hpos=v>0?Math.max(2,Math.round(v/posMax*upH)):0;
-    const hneg=v<0?Math.max(2,Math.round(-v/(negMax||1)*dnH)):0;
-    bars+='<div class="vcol"><div class="vup" style="height:'+upH+'px">'
-      +(v>=0?'<span class="vn '+cls+'" data-mag="'+mag+'">'+fmtd(v)+'</span>':"")
-      +(v>0?'<i class="vb pos '+cls+'" style="height:'+hpos+'px"></i>':"")
-      +'</div>'
-      +(negMax>0?'<div class="vdn" style="height:'+dnH+'px">'
-        +(v<0?'<i class="vb neg" style="height:'+hneg+'px"></i>':"")
-        +(v<0?'<span class="vn neg" data-mag="'+mag+'">'+fmtd(v)+'</span>':"")
-        +'</div>':"")
-      +'<span class="vd">'+d+'</span></div>';
-  }
+  // ── geometría del SVG ───────────────────────────────────────────────────────────────────
+  // viewBox fijo y `width:100%`: escala solo dentro del modal sin recalcular nada al girar el celular.
+  const W=520, CH=170, PT=22, PB=26, PL=14, PR=14;    // aire para las etiquetas alternadas y para el primer/último día
+  const range=(posMax+negMax)||1;
+  const y0 = PT + CH*posMax/range;                     // dónde cae el CERO
+  const yOf = v => PT + CH*(posMax-v)/range;
+  const xOf = i => PL + (days.length>1 ? i*(W-PL-PR)/(days.length-1) : (W-PL-PR)/2);
+  const pts = vals.map((v,i)=>[xOf(i), yOf(v)]);
+  const cls = kind==="op" ? "o" : (kind==="v" ? "v" : "b");
+
+  let svg = '<svg class="vsvg" viewBox="0 0 '+W+' '+(PT+CH+PB)+'" preserveAspectRatio="xMidYMid meet" role="img">';
+  // la raya del cero solo cuando hay negativos (si no, es la base y estorba)
+  if(negMax>0) svg += '<line class="vzero" x1="'+PL+'" y1="'+y0.toFixed(1)+'" x2="'+(W-PR)+'" y2="'+y0.toFixed(1)+'"/>';
+  svg += '<polyline class="vline '+cls+'" points="'+pts.map(p=>p[0].toFixed(1)+","+p[1].toFixed(1)).join(" ")+'"/>';
+  // marcadores + su cantidad; el punto se pinta rojo si el día salió negativo
+  // ⭐ LAS CANTIDADES SE ALTERNAN ARRIBA/ABAJO. Con 31 días caben ~17px por punto y una etiqueta
+  //    («$13k») mide ~24px: puestas todas del mismo lado, el declutter escondía 8 de 31 — y Marco
+  //    pidió ver LA CANTIDAD, no la mitad. Alternando, cada lado tiene ~34px y caben todas.
+  //    El declutter se queda igual como red de seguridad para pantallas angostas.
+  pts.forEach((p,i)=>{
+    const v=vals[i], neg=v<0;
+    svg += '<circle class="vdot '+(neg?"neg":cls)+'" cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="2.8"/>';
+    const arriba = (i%2===0) !== (v<0);        // los negativos empiezan del lado contrario
+    svg += '<text class="vn '+(neg?"neg":cls)+'" x="'+p[0].toFixed(1)+'" y="'+(arriba?p[1]-6:p[1]+11).toFixed(1)
+        +'" text-anchor="middle" data-mag="'+Math.abs(v)+'">'+fmtd(v)+'</text>';
+  });
+  // el día, abajo de todo
+  pts.forEach((p,i)=>{ svg += '<text class="vd" x="'+p[0].toFixed(1)+'" y="'+(PT+CH+13)+'" text-anchor="middle">'+days[i]+'</text>'; });
+  svg += '</svg>';
+  const bars = svg;   // el nombre viejo se conserva para no tocar el armado de abajo
+
   const totV=vals.reduce((a,b)=>a+b,0);
   let leg="",nota;
   if(kind==="op"){
@@ -435,7 +451,7 @@ function dayChartHTML(y,m,kind){
       ? "Total del mes: <b>"+fmt(totV)+"</b>. Cada barra = lo que entró por caja ese día."
       : "Total del mes: <b>"+fmt(totV)+"</b>. Cada barra = venta − costo de la mercancía de ese día.";
   }
-  return head+leg+'<div class="vchart'+(negMax>0?" hasneg":"")+'">'+bars+'</div><p class="tap">'+nota+'</p>';
+  return head+leg+bars+'<p class="tap">'+nota+'</p>';
 }
 function dayModal(y,m,kind){
   $("dbox").innerHTML='<button class="mclose" onclick="closeDay()">✕</button>'+dayChartHTML(y,m,kind);
@@ -444,7 +460,7 @@ function dayModal(y,m,kind){
 }
 function closeDay(){ $("dmodal").style.display="none"; }
 function declutterDay(box){   // oculta los números que chocarían (deja los días más grandes); las barras quedan todas
-  const chart=box.querySelector(".vchart"); if(!chart)return;
+  const chart=box.querySelector(".vsvg"); if(!chart)return;
   const labels=[].slice.call(chart.querySelectorAll(".vn"));
   labels.sort((a,b)=>(+b.dataset.mag)-(+a.dataset.mag));
   const placed=[];
