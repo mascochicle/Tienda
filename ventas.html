@@ -96,6 +96,16 @@ header p{margin:4px 0 0;color:var(--sub);font-size:13px;}
 /* 📊 BARRAS VERTICALES (Marco 24-ago-2026: «solo son 12 meses, si debe entrar»).
    Antes eran filas horizontales. En vertical los 12 meses se comparan de un vistazo, que es
    para lo que sirve la tarjeta; el detalle fino sigue estando al tocar (modal día por día). */
+/* 👯 LA PAREJA: mes a la izquierda, acumulado a la derecha. En pantalla angosta se apilan. */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media (max-width:560px){ .duo{grid-template-columns:1fr;gap:18px;} }
+.duo h3{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--sub);font-weight:700;margin:0 0 5px;}
+/* variante HORIZONTAL (la de antes), para que Marco compare y elija */
+.charth .bar{display:grid;grid-template-columns:30px 1fr 58px;align-items:center;gap:6px;font-size:12px;margin-bottom:4px;flex:none;}
+.charth .bar .n{font-size:11px;text-align:right;}
+.charth .bar .v{font-size:11px;height:auto;display:block;text-align:right;}
+.charth .track{width:100%;max-width:none;height:13px;border-radius:3px;align-items:stretch;}
+.charth .fill{height:100%!important;border-radius:3px;}
 .chartv{display:flex;align-items:flex-end;gap:2px;padding-top:4px;}
 .bar{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;font-variant-numeric:tabular-nums;}
 /* la etiqueta vive en una banda de alto FIJO: así se puede alternar arriba/abajo (modo `dense`)
@@ -117,6 +127,8 @@ header p{margin:4px 0 0;color:var(--sub);font-size:13px;}
 .fill{width:100%;border-radius:4px 4px 0 0;}
 .fill.a{background:var(--bar);} .fill.b{background:var(--bar2);} .fill.c{background:var(--bar3);}
 .chartv.dense .bar .v{font-size:9px;} .chartv.dense{gap:2px;}
+.chartv.xdense .track{width:68%;height:118px;}   /* sin números, la barra puede ser más ancha */
+.chartv.xdense .bar .n{font-size:9px;}
 .chartv.dense .bar .n{font-size:9.5px;}
 .fill{height:100%;border-radius:4px 0 0 4px;}
 .bar .val{text-align:right;white-space:nowrap;}
@@ -210,23 +222,33 @@ footer a{color:var(--acc);}
   </header>
   <div class="filtros" id="fAnio"><span class="lbl">Año</span></div>
   <div class="filtros" id="fMes"><span class="lbl">Mes</span></div>
+  <div class="filtros" id="fBar"><span class="lbl">Barras</span></div>
   <!-- 🧾 LA VENTA VA PRIMERO. Marco, 24-ago-2026, viendo la página: *«aquí en ventas y utilidades sale
        utilidades, pero no sale primero ventas, como que falta»*. Tenía razón: el título prometía dos cosas
        y solo estaba una. El dato ya venía en `anios[a][m].v` y ya se usaba para calcular el margen
        operativo — solo no se pintaba. Va ARRIBA porque es de lo que se restan las otras dos. -->
   <div class="card">
     <h2>Ventas</h2><div class="tot" id="totV">—</div>
-    <div id="chV"></div>
+    <div class="duo">
+      <div><h3>En el mes</h3><div id="chV"></div></div>
+      <div><h3 class="hAc">Acumulado del año</h3><div id="chVA"></div></div>
+    </div>
     <p class="nota">Todo lo que entró por caja, antes de restar nada. <span id="tapV"></span></p>
   </div>
   <div class="card">
     <h2>Utilidad bruta</h2><div class="tot" id="totB">—</div>
-    <div id="chB"></div>
+    <div class="duo">
+      <div><h3>En el mes</h3><div id="chB"></div></div>
+      <div><h3 class="hAc">Acumulado del año</h3><div id="chBA"></div></div>
+    </div>
     <p class="nota">Venta − costo de la mercancía. <span id="tapB"></span></p>
   </div>
   <div class="card">
     <h2>Utilidad operativa</h2><div class="tot" id="totO">—</div>
-    <div id="chO"></div>
+    <div class="duo">
+      <div><h3>En el mes</h3><div id="chO"></div></div>
+      <div><h3 class="hAc">Acumulado del año</h3><div id="chOA"></div></div>
+    </div>
     <p class="nota" id="notaO">Bruta − gastos del negocio (del libro de contabilidad).</p>
     <p class="nota" id="tapO" style="margin-top:2px"></p>
   </div>
@@ -257,6 +279,8 @@ const anios=Object.keys(DATA.anios);
 let selA=anios[anios.length-1];
 let selM=(function(){ var ms=Object.keys(DATA.anios[selA]); return ms.length ? ms.slice().sort(function(a,b){return a-b;}).pop() : "T"; })();   // default: ÚLTIMO mes con datos del año en curso (Marco 19-jul-2026)
 let openSub1=new Set(), openSub2=new Set();   // subgrupos expandidos (ventas / dia-noche)
+// ▮/▬ Marco pidió VER las dos y decidir. Se guarda su elección para que no la repita cada visita.
+let modoBarra=(function(){ try{ return localStorage.getItem("vm_barra")||"v"; }catch(e){ return "v"; } })();
 const $=id=>document.getElementById(id);
 const fmt=n=>(n<0?"-$":"$")+Math.abs(Math.round(n)).toLocaleString("en-US");
 const fmtk=n=>(n<0?"-":"")+(Math.abs(n)>=1e6?("$"+(Math.abs(n)/1e6).toFixed(2)+"M"):("$"+Math.round(Math.abs(n)/1000).toLocaleString("en-US")+"k"));
@@ -294,26 +318,56 @@ function serie(campo){ // campo: 'v','g','op'
   }
   return out;
 }
-function chart(el,campo,cls){
-  const s=serie(campo); const mx=Math.max(...s.map(x=>x.ok?x.val:0),1);
+function chart(el,campo,cls,acum){
+  let s=serie(campo);
+  if(acum){                       // 📈 ACUMULADO: suma corrida sobre la MISMA serie (mismo orden, mismos huecos)
+    let a=0; s=s.map(x=>{ if(x.ok) a+=x.val; return Object.assign({},x,{val:a, acum:true}); });
+  }
+  const mx=Math.max(...s.map(x=>x.ok?x.val:0),1);
   const cont=$(el);
+  if(modoBarra==="h") return chartH(cont,s,cls,mx,campo,acum);
   // ⛔ NO usar window.innerWidth: en el visor de artefactos la página va en un panel angosto aunque
   //    la ventana sea ancha, y decidiría mal. Manda el ancho REAL de este contenedor.
   const porCol = (cont.getBoundingClientRect().width||520) / Math.max(1,s.length);
   const denso = porCol < 40;                 // «$1.13M» mide ~35px: abajo de 40 ya se tocan
-  cont.className = "chartv" + (denso?" dense":""); cont.innerHTML="";
+  // ⛔ TERCER NIVEL: al ponerlas de a dos por tarjeta la columna cae a ~24px y ni alternadas caben
+  //    («1.13M» mide 26px). Ahí se quitan los números y quedan solo las barras — que es justo para
+  //    lo que sirve la pareja: comparar la FORMA mes contra acumulado. El número exacto se ve al
+  //    pasar el dedo/mouse (title) o cambiando a horizontales, que es la otra versión que pidió.
+  const muyDenso = porCol < 30;
+  cont.className = "chartv" + (denso?" dense":"") + (muyDenso?" xdense":""); cont.innerHTML="";
   s.forEach(x=>{const div=document.createElement("div"); div.className="bar"+(x.on?"":" dim");
     const h=x.ok?Math.max(2,Math.round(x.val/mx*100)):0;   // ahora es ALTURA, no ancho
     // clickeable: barras de MES (un año elegido, con dato) -> modal por día; barras de AÑO -> entra al año
-    if(x.m!==undefined){ if(x.ok&&x.val>0){ div.className+=" clik"; div.dataset.m=x.m; div.dataset.k=campo; } }
-    else if(x.a!==undefined){ div.className+=" clik"; div.dataset.a=x.a; }
+    // ⛔ el ACUMULADO no se toca: abrir «el día por día» de una suma corrida no significaría nada.
+    if(!acum){
+      if(x.m!==undefined){ if(x.ok&&x.val>0){ div.className+=" clik"; div.dataset.m=x.m; div.dataset.k=campo; } }
+      else if(x.a!==undefined){ div.className+=" clik"; div.dataset.a=x.a; }
+    }
     // orden vertical: cantidad arriba · barra · mes abajo (se lee de arriba hacia abajo como el resto)
     // 📱 en pantalla angosta la columna baja a ~27px y «$1.13M» no cabe: ahí se quita el signo de
     //    pesos (el total de arriba ya los lleva) y quedan ~22px. Se re-renderiza al girar el celular.
     const etq = x.ok ? (denso ? fmtk(x.val).replace("$","") : fmtk(x.val)) : '—';
-    div.innerHTML='<span class="v '+cls+'">'+etq+(x.parc?'*':'')+'</span>'
+    div.title = x.lbl+": "+(x.ok?fmtk(x.val):"sin dato")+(x.parc?" (mes en curso)":"");
+    div.innerHTML=(muyDenso?'':'<span class="v '+cls+'">'+etq+(x.parc?'*':'')+'</span>')
       +'<div class="track '+cls+'"><div class="fill '+cls+'" style="height:'+h+'%;'+(x.parc?'opacity:.55':'')+'"></div></div>'
       +'<span class="n">'+x.lbl+'</span>';
+    cont.appendChild(div);});
+  return s;
+}
+// ▬ VARIANTE HORIZONTAL: la de siempre, con el mes a la izquierda. Siempre entra (crece hacia abajo),
+//   por eso Marco la propuso como salida si las verticales no cabían. Se conserva para que elija.
+function chartH(cont,s,cls,mx,campo,acum){
+  cont.className="charth"; cont.innerHTML="";
+  s.forEach(x=>{const div=document.createElement("div"); div.className="bar"+(x.on?"":" dim");
+    const w=x.ok?Math.max(1,Math.round(x.val/mx*100)):0;
+    if(!acum){
+      if(x.m!==undefined){ if(x.ok&&x.val>0){ div.className+=" clik"; div.dataset.m=x.m; div.dataset.k=campo; } }
+      else if(x.a!==undefined){ div.className+=" clik"; div.dataset.a=x.a; }
+    }
+    div.innerHTML='<span class="n">'+x.lbl+'</span>'
+      +'<div class="track '+cls+'"><div class="fill '+cls+'" style="width:'+w+'%;'+(x.parc?'opacity:.55':'')+'"></div></div>'
+      +'<span class="v '+cls+'">'+(x.ok?fmtk(x.val):'—')+(x.parc?'*':'')+'</span>';
     cont.appendChild(div);});
   return s;
 }
@@ -350,12 +404,23 @@ function renderDN2Detail(s,cont){         // dia/noche por subgrupo -> productos
       '<div class="pn">'+(100-wd)+'% 🌙</div></div>';}).join("")
     : '<div class="nota">Sin productos con venta en el periodo.</div>';
 }
+function pillsBar(){
+  const c=$("fBar"); c.querySelectorAll(".pill").forEach(p=>p.remove());
+  [["v","▮ Verticales"],["h","▬ Horizontales"]].forEach(([k,t])=>{
+    const b=document.createElement("button"); b.className="pill"+(modoBarra===k?" on":""); b.textContent=t;
+    b.onclick=()=>{ modoBarra=k; try{localStorage.setItem("vm_barra",k);}catch(e){} render(); };
+    c.appendChild(b);});
+}
 function render(){
-  pills();
+  pills(); pillsBar();
   const per = (selA==="T"?"todos los años":selA)+(selM==="T"?"":" · "+MES[+selM]);
-  chart("chV","v","c");
-  chart("chB","g","a");
-  chart("chO","op","b");
+  // el rótulo del acumulado depende del filtro: por AÑO suma meses; en «Todos» suma años, y si hay
+  // un mes elegido suma ESE mes a lo largo de los años. Decirlo mal invita a leer mal el número.
+  const rotAc = selA==="T" ? (selM==="T" ? "Acumulado por año" : "Acumulado de "+MES[+selM]+" por año") : "Acumulado del año";
+  document.querySelectorAll(".hAc").forEach(h=>h.textContent=rotAc);
+  chart("chV","v","c");      chart("chVA","v","c",true);
+  chart("chB","g","a");      chart("chBA","g","a",true);
+  chart("chO","op","b");     chart("chOA","op","b",true);
   const tapTxt = selA==="T" ? "👆 Toca un año para entrar a sus meses." : "👆 Toca un mes para ver el detalle día por día.";
   $("tapV").textContent=tapTxt;
   $("tapB").textContent=tapTxt;
@@ -467,7 +532,9 @@ function dayChartHTML(y,m,kind){
     svg += '<circle class="vdot '+(neg?"neg":cls)+'" data-dot="'+i+'" cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="2.8"/>';
   });
   pts.forEach((p,i)=>{
-    svg += '<circle class="vhit" data-i="'+i+'" data-v="'+vals[i]+'" data-d="'+days[i]+'" cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="13"/>';
+    // el globo dice DÍA Y MES («5 jul»), no solo el día: Marco 24-ago-2026, y tiene sentido porque
+    // el modal se abre desde meses distintos y el encabezado queda arriba, lejos del globo.
+    svg += '<circle class="vhit" data-i="'+i+'" data-v="'+vals[i]+'" data-d="'+days[i]+' '+MES[+m].toLowerCase()+'" cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="13"/>';
   });
   svg += '<g class="vtip" id="vtip" style="display:none"></g>';
   // el día, abajo de todo
@@ -505,7 +572,7 @@ function armarToque(box){
     const cx=+hit.getAttribute("cx"), cy=+hit.getAttribute("cy");
     ocultar();
     const dot=svg.querySelector('.vdot[data-dot="'+i+'"]'); if(dot)dot.classList.add("sel");
-    const txt=fmtd(v), sub="día "+d;
+    const txt=fmtd(v), sub=d;        // d ya viene como «5 jul»
     // ancho estimado del globo: el número manda (15px ≈ 8.3px por carácter)
     const w=Math.max(58, txt.length*8.6+22), h=34;
     let x=cx-w/2; x=Math.max(2, Math.min(W-w-2, x));      // que no se salga por los lados
@@ -524,9 +591,7 @@ function onBar(ev){
   if(bar.dataset.a!==undefined){ selA=bar.dataset.a; if(selM!=="T"&&!DATA.anios[selA][selM])selM="T"; render(); }
   else if(bar.dataset.m!==undefined){ dayModal(selA, bar.dataset.m, bar.dataset.k); }
 }
-$("chV").addEventListener("click",onBar);
-$("chB").addEventListener("click",onBar);
-$("chO").addEventListener("click",onBar);
+["chV","chB","chO"].forEach(id=>$(id).addEventListener("click",onBar));
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDay();});
 render(); renderDNProd();
 // volver a dibujar al cambiar el ancho: las etiquetas de las barras dependen de él (ver `chart`)
