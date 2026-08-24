@@ -96,7 +96,7 @@ header p{margin:4px 0 0;color:var(--sub);font-size:13px;}
 /* 📊 BARRAS VERTICALES (Marco 24-ago-2026: «solo son 12 meses, si debe entrar»).
    Antes eran filas horizontales. En vertical los 12 meses se comparan de un vistazo, que es
    para lo que sirve la tarjeta; el detalle fino sigue estando al tocar (modal día por día). */
-.chartv{display:flex;align-items:flex-end;gap:3px;padding-top:4px;}
+.chartv{display:flex;align-items:flex-end;gap:2px;padding-top:4px;}
 .bar{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;font-variant-numeric:tabular-nums;}
 /* la etiqueta vive en una banda de alto FIJO: así se puede alternar arriba/abajo (modo `dense`)
    sin que las barras se desalineen entre sí — el track siempre empieza a la misma altura. */
@@ -107,7 +107,12 @@ header p{margin:4px 0 0;color:var(--sub);font-size:13px;}
 .bar .n{color:var(--sub);font-weight:600;font-size:11px;line-height:13px;}
 .bar.dim{opacity:.38;}
 .bar.clik{cursor:pointer;} .bar.clik:active .fill{filter:brightness(1.12);}
-.track{width:100%;border-radius:4px 4px 0 0;height:132px;display:flex;align-items:flex-end;overflow:hidden;}
+/* la barra NO ocupa toda la columna: deja aire a los lados como una gráfica de barras normal
+   (Marco 24-ago-2026: «no las hagas gordas, déjales espacio entre ellas, tienen espacio»).
+   El % la encoge cuando hay muchos meses; el max-width evita que se vuelva un bloque cuando
+   son pocas barras (la vista de AÑOS son 4 y la columna mide ~130px; con tope de 42px se veían
+   flacas y perdidas — 32% barra contra 68% aire, medido). */
+.track{width:58%;max-width:64px;border-radius:4px 4px 0 0;height:132px;display:flex;align-items:flex-end;overflow:hidden;}
 .track.a{background:var(--bar-soft);} .track.b{background:var(--bar2-soft);} .track.c{background:var(--bar3-soft);}
 .fill{width:100%;border-radius:4px 4px 0 0;}
 .fill.a{background:var(--bar);} .fill.b{background:var(--bar2);} .fill.c{background:var(--bar3);}
