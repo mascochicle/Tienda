@@ -93,12 +93,26 @@ header p{margin:4px 0 0;color:var(--sub);font-size:13px;}
 .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;}
 .card h2{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);margin:0 0 4px;font-weight:700;}
 .card .tot{font-size:20px;font-weight:650;font-variant-numeric:tabular-nums;margin-bottom:10px;}
-.bar{display:grid;grid-template-columns:40px 1fr 74px;align-items:center;gap:8px;font-size:13px;margin-bottom:6px;font-variant-numeric:tabular-nums;}
-.bar .n{color:var(--sub);font-weight:600;}
-.bar.dim{opacity:.4;}
-.track{border-radius:4px;height:16px;overflow:hidden;}
+/* 📊 BARRAS VERTICALES (Marco 24-ago-2026: «solo son 12 meses, si debe entrar»).
+   Antes eran filas horizontales. En vertical los 12 meses se comparan de un vistazo, que es
+   para lo que sirve la tarjeta; el detalle fino sigue estando al tocar (modal día por día). */
+.chartv{display:flex;align-items:flex-end;gap:3px;padding-top:4px;}
+.bar{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;font-variant-numeric:tabular-nums;}
+/* la etiqueta vive en una banda de alto FIJO: así se puede alternar arriba/abajo (modo `dense`)
+   sin que las barras se desalineen entre sí — el track siempre empieza a la misma altura. */
+.bar .v{font-size:10px;font-weight:700;line-height:12px;white-space:nowrap;height:12px;display:flex;align-items:flex-start;justify-content:center;}
+.chartv.dense .bar .v{height:26px;}
+.chartv.dense .bar:nth-child(even) .v{align-items:flex-end;}
+.bar .v.a{color:var(--acc);} .bar .v.b{color:var(--bar2);} .bar .v.c{color:var(--bar3);}
+.bar .n{color:var(--sub);font-weight:600;font-size:11px;line-height:13px;}
+.bar.dim{opacity:.38;}
+.bar.clik{cursor:pointer;} .bar.clik:active .fill{filter:brightness(1.12);}
+.track{width:100%;border-radius:4px 4px 0 0;height:132px;display:flex;align-items:flex-end;overflow:hidden;}
 .track.a{background:var(--bar-soft);} .track.b{background:var(--bar2-soft);} .track.c{background:var(--bar3-soft);}
+.fill{width:100%;border-radius:4px 4px 0 0;}
 .fill.a{background:var(--bar);} .fill.b{background:var(--bar2);} .fill.c{background:var(--bar3);}
+.chartv.dense .bar .v{font-size:9px;} .chartv.dense{gap:2px;}
+.chartv.dense .bar .n{font-size:9.5px;}
 .fill{height:100%;border-radius:4px 0 0 4px;}
 .bar .val{text-align:right;white-space:nowrap;}
 .hint{font-size:12.5px;color:var(--sub);margin:0 2px;}
@@ -271,14 +285,24 @@ function serie(campo){ // campo: 'v','g','op'
 }
 function chart(el,campo,cls){
   const s=serie(campo); const mx=Math.max(...s.map(x=>x.ok?x.val:0),1);
-  const cont=$(el); cont.innerHTML="";
+  const cont=$(el);
+  // ⛔ NO usar window.innerWidth: en el visor de artefactos la página va en un panel angosto aunque
+  //    la ventana sea ancha, y decidiría mal. Manda el ancho REAL de este contenedor.
+  const porCol = (cont.getBoundingClientRect().width||520) / Math.max(1,s.length);
+  const denso = porCol < 40;                 // «$1.13M» mide ~35px: abajo de 40 ya se tocan
+  cont.className = "chartv" + (denso?" dense":""); cont.innerHTML="";
   s.forEach(x=>{const div=document.createElement("div"); div.className="bar"+(x.on?"":" dim");
-    const w=x.ok?Math.max(1,Math.round(x.val/mx*100)):0;
+    const h=x.ok?Math.max(2,Math.round(x.val/mx*100)):0;   // ahora es ALTURA, no ancho
     // clickeable: barras de MES (un año elegido, con dato) -> modal por día; barras de AÑO -> entra al año
     if(x.m!==undefined){ if(x.ok&&x.val>0){ div.className+=" clik"; div.dataset.m=x.m; div.dataset.k=campo; } }
     else if(x.a!==undefined){ div.className+=" clik"; div.dataset.a=x.a; }
-    div.innerHTML='<span class="n">'+x.lbl+'</span><div class="track '+cls+'"><div class="fill '+cls+'" style="width:'+w+'%;'+(x.parc?'opacity:.55':'')+'"></div></div>'+
-      '<span class="val">'+(x.ok?fmtk(x.val):'—')+(x.parc?' *':'')+'</span>';
+    // orden vertical: cantidad arriba · barra · mes abajo (se lee de arriba hacia abajo como el resto)
+    // 📱 en pantalla angosta la columna baja a ~27px y «$1.13M» no cabe: ahí se quita el signo de
+    //    pesos (el total de arriba ya los lleva) y quedan ~22px. Se re-renderiza al girar el celular.
+    const etq = x.ok ? (denso ? fmtk(x.val).replace("$","") : fmtk(x.val)) : '—';
+    div.innerHTML='<span class="v '+cls+'">'+etq+(x.parc?'*':'')+'</span>'
+      +'<div class="track '+cls+'"><div class="fill '+cls+'" style="height:'+h+'%;'+(x.parc?'opacity:.55':'')+'"></div></div>'
+      +'<span class="n">'+x.lbl+'</span>';
     cont.appendChild(div);});
   return s;
 }
@@ -478,6 +502,8 @@ $("chB").addEventListener("click",onBar);
 $("chO").addEventListener("click",onBar);
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDay();});
 render(); renderDNProd();
+// volver a dibujar al cambiar el ancho: las etiquetas de las barras dependen de él (ver `chart`)
+let _rt; addEventListener("resize",()=>{clearTimeout(_rt); _rt=setTimeout(render,150);});
 </script>
 
 <script>
