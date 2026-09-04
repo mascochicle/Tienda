@@ -172,6 +172,14 @@ var CSS = ''
 + '.rd-def{display:none;}'                       /* solo aparece si HAY un orden propio que deshacer */
 + '.rd-def.hay{display:inline;}'
 + '.rd-hint{font-size:11.5px;color:var(--sub,#6d675c);}'
+/* ⠿ AL LADO DEL TITULO (Marco 3-sep-2026: "secciona el area del titulo, dejale un espacio a la
+   derecha y ahi ponlo"). La barra ocupaba SU PROPIO renglon en los 19 tableros; el titulo ya
+   ocupa dos, asi que a su lado cuesta CERO alto. El header se parte aqui, en JS, para no tener
+   que tocar 18 generadores — y los tableros nuevos nacen ya asi. */
++ '.rd-head{display:flex;align-items:flex-start;gap:10px;}'
++ '.rd-head > .rd-hL{flex:1;min-width:0;}'
++ '.rd-head > .rd-slot{flex:none;padding-top:3px;}'
++ '.rd-head .rd-bar{margin:0;}'
 + '.rd-grip{display:none;position:absolute;top:7px;right:9px;font-style:normal;font-size:15px;'
 +   'color:var(--sub,#6d675c);line-height:1;pointer-events:none;}'
 + '.rd-on .rd-item{position:relative;cursor:grab;touch-action:none;-webkit-user-select:none;'
@@ -242,11 +250,30 @@ window.Reordenar = function(o){
     + '</span><button class="rd-btn rd-def" type="button" title="Deja las tarjetas como vienen de fábrica">'
     + '↺ predeterminado</button>'
     + '<button class="rd-btn" type="button">⠿ reordenar</button>';
-  // la barra va ARRIBA de lo reordenable: fuera del contenedor cuando el contenedor ES la rejilla
-  // (si no, la barra se volvería una celda más), o antes de la primera sección cuando el contenedor
-  // es el envoltorio de toda la página.
-  if(o.barra==="fuera" && CONT.parentNode) CONT.parentNode.insertBefore(bar, CONT);
-  else ini[0].parentNode.insertBefore(bar, ini[0]);
+  // ⭐ 1ª opción: al lado del TÍTULO. Ahí no cuesta alto y no estorba (Marco 3-sep-2026).
+  //    El header se parte en dos la primera vez: lo que ya traía se envuelve en `.rd-hL` y se le
+  //    añade el hueco `.rd-slot` a la derecha. Es idempotente — si ya está partido, solo se usa.
+  //    Este script corre al final del documento, así que el header YA existe: sin carrera ni
+  //    parpadeo (con `setTimeout` sí lo había: perdía contra el parseo).
+  function alHeader(){
+    var h=document.querySelector(".wrap > header") || document.querySelector("header");
+    if(!h) return false;
+    var slot=h.querySelector(":scope > .rd-slot") || h.querySelector(":scope > #hR");
+    if(!slot){
+      var L=document.createElement("div"); L.className="rd-hL";
+      while(h.firstChild) L.appendChild(h.firstChild);
+      slot=document.createElement("div"); slot.className="rd-slot";
+      h.appendChild(L); h.appendChild(slot);
+    }
+    h.classList.add("rd-head"); slot.appendChild(bar); return true;
+  }
+  // 2ª opción (sin header): como siempre — ARRIBA de lo reordenable. Fuera del contenedor cuando el
+  // contenedor ES la rejilla (si no, la barra se volvería una celda más), o antes de la primera
+  // sección cuando el contenedor es el envoltorio de toda la página.
+  if(!alHeader()){
+    if(o.barra==="fuera" && CONT.parentNode) CONT.parentNode.insertBefore(bar, CONT);
+    else ini[0].parentNode.insertBefore(bar, ini[0]);
+  }
   var btn=bar.querySelector(".rd-btn:not(.rd-def)"), hint=bar.querySelector(".rd-hint"), reord=false;
 
   // ── volver al orden del archivo ─────────────────────────────────────────────────────────────
