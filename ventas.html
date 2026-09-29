@@ -282,7 +282,8 @@ let selA=anios[anios.length-1];
 let selM=(function(){ var ms=Object.keys(DATA.anios[selA]); return ms.length ? ms.slice().sort(function(a,b){return a-b;}).pop() : "T"; })();   // default: ÚLTIMO mes con datos del año en curso (Marco 19-jul-2026)
 let openSub1=new Set(), openSub2=new Set();   // subgrupos expandidos (ventas / dia-noche)
 // ▮/▬ Marco pidió VER las dos y decidir. Se guarda su elección para que no la repita cada visita.
-let modoBarra=(function(){ try{ return localStorage.getItem("vm_barra")||"v"; }catch(e){ return "v"; } })();
+// Marco 29-sep-2026: «deja por default las barras horizontales».
+let modoBarra=(function(){ try{ return localStorage.getItem("vm_barra")||"h"; }catch(e){ return "h"; } })();
 const $=id=>document.getElementById(id);
 const fmt=n=>(n<0?"-$":"$")+Math.abs(Math.round(n)).toLocaleString("en-US");
 const fmtk=n=>(n<0?"-":"")+(Math.abs(n)>=1e6?("$"+(Math.abs(n)/1e6).toFixed(2)+"M"):("$"+Math.round(Math.abs(n)/1000).toLocaleString("en-US")+"k"));
